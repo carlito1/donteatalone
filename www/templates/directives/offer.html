@@ -1,0 +1,16 @@
+﻿<ion-item class="item item-avatar" ng-click="toggleVisible()">
+    <img ng-src="{{offerInfo.owner.avatar}}" alt="avatar" />
+    <h2>{{offerInfo.owner.name}} {{offerInfo.owner.surname}}</h2>
+    <p>Lunch at <span class="positive">@{{offerInfo.location}}</span> at <span class="positive">{{offerInfo.time}}</span></p>
+    <div class="eaters fade-in-out" ng-show="visible">
+        <span ng-repeat="i in range track by $index" class="mini-avatar">
+            <i class="icon ion-ios-person-outline"></i>
+        </span>
+        <span ng-repeat="eater in offerInfo.eaters track by $index" class="mini-avatar">
+            <img ng-src="{{eater.avatar}}" alt="avatar" />
+        </span>
+        <span class="place-offer">
+            <button class="button button-light" ng-click="placeOffer($event)"><i class="icon ion-ios-plus-empty"></i></button>
+        </span>
+    </div>
+</ion-item>

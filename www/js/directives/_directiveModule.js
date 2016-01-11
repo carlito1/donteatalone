@@ -1,0 +1,1 @@
+﻿angular.module('sentdevs.directives', ['sentdevs.directives.offerDirective']);

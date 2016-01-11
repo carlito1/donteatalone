@@ -1,0 +1,39 @@
+﻿<ion-nav-bar class="bar-stable" ng-controller="NavigationBarController">
+    <ion-nav-back-button>
+    </ion-nav-back-button>
+    <ion-nav-buttons side="left">
+        <!-- Toggle left side menu -->
+        <button class="button button-icon icon ion-navicon" ng-click="toggleMenu()"></button>
+    </ion-nav-buttons>
+</ion-nav-bar>
+<!--
+  The views will be rendered in the <ion-nav-view> directive below
+  Templates are in the /templates folder (but you could also
+  have templates inline in this html file if you'd like).
+-->
+<ion-side-menus>
+    <ion-side-menu side="left" ng-controller="NavigationBarController">
+        <div class="list">
+            <div class="item"></div>
+            <a class="item item-icon-left" href="#/tabs/trending" ng-click="select(0)" menu-close>
+                <i class=icon ng-class="{'ion-ios-home' : selected == 0, 'ion-ios-home-outline' : selected != 0}"></i>
+                Home
+            </a>
+            <a class="item item-icon-left" menu-close href="#" enable-menu-with-back-views="false" ng-click="select(1)">
+                <i class="icon" ng-class="{'ion-ios-nutrition' : selected == 1, 'ion-ios-nutrition-outline' : selected != 1}"></i>
+                My offers
+            </a>
+            <a class="item item-icon-left" menu-close href="#/chats" enable-menu-with-back-views="false" ng-click="select(2)">
+                <i class="icon" ng-class="{'ion-ios-email' : selected == 2, 'ion-ios-email-outline' : selected != 2}"></i>
+                Chats
+            </a>
+            <a class="item item-icon-left" menu-close href="#" enable-menu-with-back-views="false" ng-click="select(3)">
+                <i class="icon" ng-class="{'ion-ios-gear' : selected == 3, 'ion-ios-gear-outline' : selected != 3}"></i>
+                Settings
+            </a>
+        </div>
+    </ion-side-menu>
+    <ion-side-menu-content>
+        <ion-nav-view></ion-nav-view>
+    </ion-side-menu-content>
+</ion-side-menus>

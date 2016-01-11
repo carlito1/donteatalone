@@ -1,0 +1,1 @@
+﻿angular.module('sentdevs.filters', ['sentdevs.filters.peopleFilter']);

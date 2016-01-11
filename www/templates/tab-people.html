@@ -1,0 +1,25 @@
+<ion-view view-title="People">
+    <ion-content>
+        <div class="list list-inset">
+            <label class="item item-input">
+                <i class="icon ion-search placeholder-icon"></i>
+                <input type="text" placeholder="Search" ng-model="searchQuery">
+            </label>
+        </div>
+        <ion-list
+                  show-delete="shouldShowDelete">
+            <ion-item class="item-divider">
+                Friends
+            </ion-item>
+            <ion-item ng-repeat="person in people | people: searchQuery" class="item item-avatar">
+                <img ng-src="{{person.picture}}" />
+                <h2 class="item-text-center item-text-wrap">{{person.name}} {{person.surname}}</h2>
+            </ion-item>
+        </ion-list>
+        <ion-list>
+            <ion-item class="item-divider">
+                Suggested people
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>

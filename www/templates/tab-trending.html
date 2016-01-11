@@ -1,0 +1,18 @@
+<ion-view view-title="Offers">
+    <ion-content>
+        <ion-list>
+            <ion-item class="item-divider">
+                2 o'clock
+            </ion-item>
+            <sd-offer ng-repeat="offer in offers" offer="offer"></sd-offer>
+        </ion-list>
+        <ion-list>
+            <ion-item class="item-divider">
+                3 o'clock
+            </ion-item>
+        </ion-list>
+    </ion-content>
+    <ion-footer-bar class="bar-stable">
+        <button class="button button-clear pull-right icon ion-ios-plus-empty" ng-click="addOffer($event)"></button>
+    </ion-footer-bar>
+</ion-view>
