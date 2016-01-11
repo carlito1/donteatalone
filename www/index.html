@@ -50,7 +50,11 @@
                     <i class=icon ng-class="{'ion-ios-home' : selected == 0, 'ion-ios-home-outline' : selected != 0}"></i>                    Home
                 </a>
                 <a class="item item-icon-left" menu-close href="#" enable-menu-with-back-views="false" ng-click="select(1)">
-                    <i class="icon" ng-class="{'ion-ios-nutrition' : selected == 1, 'ion-ios-nutrition-outline' : selected != 1}"></i>                    My offers
+                    <i class="icon" ng-class="{'ion-ios-nutrition' : selected == 1, 'ion-ios-nutrition-outline' : selected != 1}"></i>
+                    My offers
+                    <span class="badge" ng-controller="offersCounterController">
+                        {{counter}}
+                    </span>
                 </a>
                 <a class="item item-icon-left" menu-close href="#/loged/chats" enable-menu-with-back-views="false" ng-click="select(2)">
                     <i class="icon" ng-class="{'ion-ios-email' : selected == 2, 'ion-ios-email-outline' : selected != 2}"></i>                    Chats

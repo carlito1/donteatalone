@@ -42,6 +42,14 @@ angular.module('sentdevs.controllers.navigationBarController', [])
         $scope.selected = pageIndex;
     };
 }]);
+angular.module('sentdevs.controllers.offersCounterController', [])
+.controller('offersCounterController', ['$scope', 'offersService', function ($scope, offersService) {
+    $scope.counter = 0;
+    
+    offersService.getUnresolvedOffersCount().then(function(coutner){
+        $scope.counter = coutner;
+    });
+}]);
 angular.module('sentdevs.controllers.peopleController', [])
 .controller('PeopleController', ['$scope', 'peopleService', function ($scope, peopleService) {
     //Initialization in case we don't have data;
@@ -63,4 +71,5 @@ angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
     'sentdevs.controllers.navigationBarController',
     'sentdevs.controllers.loginController',
     'sentdevs.controllers.chatDetailController',
+    'sentdevs.controllers.offersCounterController'
 ]);

@@ -121,7 +121,7 @@ angular.module('sentdevs.services.dataService', [])
 }]);
 angular.module('sentdevs.services.offersService', [])
     //Sockets needed?
-.factory('offersService', ['dataService', 'userService', function (dataService, userService) {
+.factory('offersService', ['dataService', 'userService', '$q', function (dataService, userService, $q) {
     //Map of offers id with it's callbacks
     var subsribers = {};
     /**
@@ -142,18 +142,19 @@ angular.module('sentdevs.services.offersService', [])
     /**
     * Listens for offers changed. If offer changed assign new eater to view.
     **/
-    function offersChangeListener(offerId, eater) {
+    function offersChangeListener(offerId, eater) { 
         if (subsribers.hasOwnProperty(offerId) && subsribers[offerId]) {
             var originalOffer = subsribers[offerId];
             if(originalOffer.offer.eaters.length === 0) {
                 originalOffer.offer.eaters.push(eater);
             } else {
+                var bShouldPush = false;
                 angular.forEach(originalOffer.offer.eaters, function (orgEater) {
                     if (!angular.equals(eater, orgEater)) {
-                        originalOffer.offer.eaters.push(eater);
-                        notifyView(offerId);
+                        bShouldPush = true;
                     }
                 });
+                originalOffer.offer.eaters.push(eater);
             }
         }
     }
@@ -170,6 +171,12 @@ angular.module('sentdevs.services.offersService', [])
     }
     function getOffers() {
         return dataService.getOffers();
+    }
+    
+    function getUnresolvedOffersCount() {
+        var deferred = $q.defer();
+        deferred.resolve(12);
+        return deferred.promise;
     }
     return {
         signForOffer: signForOffer,
