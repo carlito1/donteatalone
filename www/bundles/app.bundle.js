@@ -40,13 +40,27 @@ angular.module('sentdevs', ['ionic', 'sentdevs.controllers', 'sentdevs.services'
         })
         .state('loged.chats', {
             url: '/chats',
-            templateUrl: 'templates/views/chats-view.html',
-            controller: 'ChatController'
+            abstract: true,
+            template: '<ion-nav-view name="chats"></ion-nav-view>'
+            // resolve chats
         })
-        .state('loged.chat-detail', {
-            url: '/chats/:chatId',
-            templateUrl: 'templates/views/chats-view.html',
-            controller: 'ChatDetailController'
+        .state('loged.chats.list', {
+            url: '/list',
+            views: {
+                'chats' : {
+                    templateUrl: 'templates/views/chat-list.html',
+                    controller: 'ChatController'
+                }
+            }
+        })
+        .state('loged.chats.chat-detail', {
+            url: '/details/:chatId',
+            views: {
+                'chats' : {
+                    templateUrl: 'templates/views/chat-details.html',
+                    controller: 'ChatDetailController'
+                }
+            }
         })
             // setup an abstract state for the tabs directive
 
@@ -66,6 +80,15 @@ angular.module('sentdevs', ['ionic', 'sentdevs.controllers', 'sentdevs.services'
             }
         }
     })
+    .state('loged.tab.addOffer', {
+        url: '/addOffer',
+        views: {
+            'tab-trending': {
+                templateUrl: 'templates/views/add-offer.html',
+                controller: 'AddOfferController' 
+            }
+        }
+    })
       .state('loged.tab.people', {
           url: '/people',
           views: {
@@ -81,10 +104,23 @@ angular.module('sentdevs', ['ionic', 'sentdevs.controllers', 'sentdevs.services'
 
 }]);
 
+angular.module('sentdevs.controllers.addOffer', [])
+.controller('AddOfferController', ['$scope', '$state', 'offersService',  function($scope, $state, offersService){
+    $scope.offer = {};
+    $scope.offer.eaters = [];
+    
+    $scope.createOffer = function() {
+        console.log($scope.offer);
+        offersService.createOffer($scope.offer).then(function(bStatus) {
+            console.log('Totrata', bStatus);
+            $state.go('loged.tab.trending');
+        });
+    };
+}]);
 /// <reference path="trendingController.js" />
 angular.module('sentdevs.controllers.chatDetailController', [])
 .controller('ChatDetailController', ['$scope', '$stateParams', function ($scope, $stateParams) {
-
+    $scope.chat = {};
     $scope.chat.name = 'Test';
 }]);
 /// <reference path="trendingController.js" />
@@ -126,7 +162,7 @@ angular.module('sentdevs.controllers.navigationBarController', [])
     };
 }]);
 angular.module('sentdevs.controllers.offersCounterController', [])
-.controller('offersCounterController', ['$scope', 'offersService', function ($scope, offersService) {
+.controller('OffersCounterController', ['$scope', 'offersService', function ($scope, offersService) {
     $scope.counter = 0;
     
     offersService.getUnresolvedOffersCount().then(function(coutner){
@@ -154,7 +190,8 @@ angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
     'sentdevs.controllers.navigationBarController',
     'sentdevs.controllers.loginController',
     'sentdevs.controllers.chatDetailController',
-    'sentdevs.controllers.offersCounterController'
+    'sentdevs.controllers.offersCounterController',
+    'sentdevs.controllers.addOffer'
 ]);
 angular.module('sentdevs.directives.offerDirective', [])
 .directive('sdOffer', [function () {
@@ -221,6 +258,7 @@ angular.module('sentdevs.services.dataService', [])
         WAITING : 1,
         NOT_FRIEND: 2
     };
+    var offerAddedSubscribers = [];
     var offersChangesSubscribers = {};
     var chatSubscribers = {};
     var offers = [{
@@ -251,6 +289,12 @@ angular.module('sentdevs.services.dataService', [])
          }],
          location: 'AlPachino'
      }];
+     
+     function onOfferAdded() {
+         offerAddedSubscribers.forEach(function(fnCallback){
+             fnCallback();
+         });
+     }
     return {
         getPeople: function () {
             return [
@@ -314,8 +358,14 @@ angular.module('sentdevs.services.dataService', [])
             var deferred = $q.defer();
             offers.push(offer);
             deferred.resolve();
-
             return deferred.promise;
+        },
+        /**
+         * subscribe to new offers notification 
+         * @param {function} callback function 
+         */
+        subscribeToOfferAdded: function(fnCallback) {
+            offerAddedSubscribers.push(fnCallback);
         },
         /**
         * Subscribe to offers changes
@@ -339,6 +389,14 @@ angular.module('sentdevs.services.offersService', [])
 .factory('offersService', ['dataService', 'userService', '$q', function (dataService, userService, $q) {
     //Map of offers id with it's callbacks
     var subsribers = {};
+    
+    function createOffer(offer) {
+        return dataService.addOffer(offer).then(function(){
+            return true;
+        }, function(){
+            return false;
+        });
+    }
     /**
     * Retrive user and add it to offer eaters. Update offer
     * @returns {promise} 
@@ -396,7 +454,9 @@ angular.module('sentdevs.services.offersService', [])
     return {
         signForOffer: signForOffer,
         subscribe: subscribe,
-        getAll: getOffers
+        getAll: getOffers,
+        getUnresolvedOffersCount : getUnresolvedOffersCount,
+        createOffer: createOffer
     };
 }]);
 angular.module('sentdevs.services.peopleService', [])

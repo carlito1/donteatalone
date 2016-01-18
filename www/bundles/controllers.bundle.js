@@ -1,7 +1,20 @@
+angular.module('sentdevs.controllers.addOffer', [])
+.controller('AddOfferController', ['$scope', '$state', 'offersService',  function($scope, $state, offersService){
+    $scope.offer = {};
+    $scope.offer.eaters = [];
+    
+    $scope.createOffer = function() {
+        console.log($scope.offer);
+        offersService.createOffer($scope.offer).then(function(bStatus) {
+            console.log('Totrata', bStatus);
+            $state.go('loged.tab.trending');
+        });
+    };
+}]);
 /// <reference path="trendingController.js" />
 angular.module('sentdevs.controllers.chatDetailController', [])
 .controller('ChatDetailController', ['$scope', '$stateParams', function ($scope, $stateParams) {
-
+    $scope.chat = {};
     $scope.chat.name = 'Test';
 }]);
 /// <reference path="trendingController.js" />
@@ -43,7 +56,7 @@ angular.module('sentdevs.controllers.navigationBarController', [])
     };
 }]);
 angular.module('sentdevs.controllers.offersCounterController', [])
-.controller('offersCounterController', ['$scope', 'offersService', function ($scope, offersService) {
+.controller('OffersCounterController', ['$scope', 'offersService', function ($scope, offersService) {
     $scope.counter = 0;
     
     offersService.getUnresolvedOffersCount().then(function(coutner){
@@ -71,5 +84,6 @@ angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
     'sentdevs.controllers.navigationBarController',
     'sentdevs.controllers.loginController',
     'sentdevs.controllers.chatDetailController',
-    'sentdevs.controllers.offersCounterController'
+    'sentdevs.controllers.offersCounterController',
+    'sentdevs.controllers.addOffer'
 ]);

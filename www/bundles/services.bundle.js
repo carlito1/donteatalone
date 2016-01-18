@@ -6,6 +6,7 @@ angular.module('sentdevs.services.dataService', [])
         WAITING : 1,
         NOT_FRIEND: 2
     };
+    var offerAddedSubscribers = [];
     var offersChangesSubscribers = {};
     var chatSubscribers = {};
     var offers = [{
@@ -36,6 +37,12 @@ angular.module('sentdevs.services.dataService', [])
          }],
          location: 'AlPachino'
      }];
+     
+     function onOfferAdded() {
+         offerAddedSubscribers.forEach(function(fnCallback){
+             fnCallback();
+         });
+     }
     return {
         getPeople: function () {
             return [
@@ -99,8 +106,14 @@ angular.module('sentdevs.services.dataService', [])
             var deferred = $q.defer();
             offers.push(offer);
             deferred.resolve();
-
             return deferred.promise;
+        },
+        /**
+         * subscribe to new offers notification 
+         * @param {function} callback function 
+         */
+        subscribeToOfferAdded: function(fnCallback) {
+            offerAddedSubscribers.push(fnCallback);
         },
         /**
         * Subscribe to offers changes
@@ -124,6 +137,14 @@ angular.module('sentdevs.services.offersService', [])
 .factory('offersService', ['dataService', 'userService', '$q', function (dataService, userService, $q) {
     //Map of offers id with it's callbacks
     var subsribers = {};
+    
+    function createOffer(offer) {
+        return dataService.addOffer(offer).then(function(){
+            return true;
+        }, function(){
+            return false;
+        });
+    }
     /**
     * Retrive user and add it to offer eaters. Update offer
     * @returns {promise} 
@@ -181,7 +202,9 @@ angular.module('sentdevs.services.offersService', [])
     return {
         signForOffer: signForOffer,
         subscribe: subscribe,
-        getAll: getOffers
+        getAll: getOffers,
+        getUnresolvedOffersCount : getUnresolvedOffersCount,
+        createOffer: createOffer
     };
 }]);
 angular.module('sentdevs.services.peopleService', [])

@@ -40,13 +40,27 @@ angular.module('sentdevs', ['ionic', 'sentdevs.controllers', 'sentdevs.services'
         })
         .state('loged.chats', {
             url: '/chats',
-            templateUrl: 'templates/views/chats-view.html',
-            controller: 'ChatController'
+            abstract: true,
+            template: '<ion-nav-view name="chats"></ion-nav-view>'
+            // resolve chats
         })
-        .state('loged.chat-detail', {
-            url: '/chats/:chatId',
-            templateUrl: 'templates/views/chats-view.html',
-            controller: 'ChatDetailController'
+        .state('loged.chats.list', {
+            url: '/list',
+            views: {
+                'chats' : {
+                    templateUrl: 'templates/views/chat-list.html',
+                    controller: 'ChatController'
+                }
+            }
+        })
+        .state('loged.chats.chat-detail', {
+            url: '/details/:chatId',
+            views: {
+                'chats' : {
+                    templateUrl: 'templates/views/chat-details.html',
+                    controller: 'ChatDetailController'
+                }
+            }
         })
             // setup an abstract state for the tabs directive
 
@@ -63,6 +77,15 @@ angular.module('sentdevs', ['ionic', 'sentdevs.controllers', 'sentdevs.services'
             'tab-trending': {
                 templateUrl: 'templates/tab-trending.html',
                 controller: 'TrendingController'
+            }
+        }
+    })
+    .state('loged.tab.addOffer', {
+        url: '/addOffer',
+        views: {
+            'tab-trending': {
+                templateUrl: 'templates/views/add-offer.html',
+                controller: 'AddOfferController' 
             }
         }
     })

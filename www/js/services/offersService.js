@@ -3,6 +3,14 @@
 .factory('offersService', ['dataService', 'userService', '$q', function (dataService, userService, $q) {
     //Map of offers id with it's callbacks
     var subsribers = {};
+    
+    function createOffer(offer) {
+        return dataService.addOffer(offer).then(function(){
+            return true;
+        }, function(){
+            return false;
+        });
+    }
     /**
     * Retrive user and add it to offer eaters. Update offer
     * @returns {promise} 
@@ -60,6 +68,8 @@
     return {
         signForOffer: signForOffer,
         subscribe: subscribe,
-        getAll: getOffers
+        getAll: getOffers,
+        getUnresolvedOffersCount : getUnresolvedOffersCount,
+        createOffer: createOffer
     };
 }]);

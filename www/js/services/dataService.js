@@ -5,6 +5,7 @@
         WAITING : 1,
         NOT_FRIEND: 2
     };
+    var offerAddedSubscribers = [];
     var offersChangesSubscribers = {};
     var chatSubscribers = {};
     var offers = [{
@@ -35,6 +36,12 @@
          }],
          location: 'AlPachino'
      }];
+     
+     function onOfferAdded() {
+         offerAddedSubscribers.forEach(function(fnCallback){
+             fnCallback();
+         });
+     }
     return {
         getPeople: function () {
             return [
@@ -98,8 +105,14 @@
             var deferred = $q.defer();
             offers.push(offer);
             deferred.resolve();
-
             return deferred.promise;
+        },
+        /**
+         * subscribe to new offers notification 
+         * @param {function} callback function 
+         */
+        subscribeToOfferAdded: function(fnCallback) {
+            offerAddedSubscribers.push(fnCallback);
         },
         /**
         * Subscribe to offers changes

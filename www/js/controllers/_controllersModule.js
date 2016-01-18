@@ -4,5 +4,6 @@
     'sentdevs.controllers.navigationBarController',
     'sentdevs.controllers.loginController',
     'sentdevs.controllers.chatDetailController',
-    'sentdevs.controllers.offersCounterController'
+    'sentdevs.controllers.offersCounterController',
+    'sentdevs.controllers.addOffer'
 ]);

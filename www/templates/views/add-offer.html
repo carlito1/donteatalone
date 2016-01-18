@@ -1,0 +1,21 @@
+<ion-view name="Add offer">
+    <ion-content>
+        <form name="offerForm">
+            <div class="list">
+                <label class="item item-input item-floating-label">
+                    <span class="input-label">Location</span>
+                    <input type="text" placeholder="Location" ng-model="offer.location" required>
+                </label>
+                <label class="item item-input item-floating-label">
+                    <span class="input-label">Number of persons</span>
+                    <input type="number" placeholder="Number of persons" ng-model="offer.numOfPersons" required>
+                </label>
+                <label class="item item-input item-floating-label">
+                    <span class="input-label">Time</span>
+                    <input type="time" placeholder="Time" ng-model="offer.time" required>
+                </label>
+                <button type="button" class="button button-block button-positive" ng-click="createOffer()" ng-disabled="offerForm.$invalid">Place offer</button>
+            </div>
+        </form>
+    </ion-content>
+</ion-view>

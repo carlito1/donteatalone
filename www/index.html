@@ -30,12 +30,12 @@
       The nav bar that will be updated as we navigate between views.
     -->
     <ion-nav-bar class="bar-stable" ng-controller="NavigationBarController">
-        <ion-nav-back-button>
-        </ion-nav-back-button>
         <ion-nav-buttons side="left">
             <!-- Toggle left side menu -->
             <button class="button button-icon icon ion-navicon" ng-click="toggleMenu()"></button>
         </ion-nav-buttons>
+        <ion-nav-back-button>
+        </ion-nav-back-button>
     </ion-nav-bar>
     <!--
   The views will be rendered in the <ion-nav-view> directive below
@@ -52,11 +52,11 @@
                 <a class="item item-icon-left" menu-close href="#" enable-menu-with-back-views="false" ng-click="select(1)">
                     <i class="icon" ng-class="{'ion-ios-nutrition' : selected == 1, 'ion-ios-nutrition-outline' : selected != 1}"></i>
                     My offers
-                    <span class="badge" ng-controller="offersCounterController">
+                    <span class="badge" ng-controller="OffersCounterController">
                         {{counter}}
                     </span>
                 </a>
-                <a class="item item-icon-left" menu-close href="#/loged/chats" enable-menu-with-back-views="false" ng-click="select(2)">
+                <a class="item item-icon-left" menu-close href="#/loged/chats/list" enable-menu-with-back-views="false" ng-click="select(2)">
                     <i class="icon" ng-class="{'ion-ios-email' : selected == 2, 'ion-ios-email-outline' : selected != 2}"></i>                    Chats
                 </a>
                 <a class="item item-icon-left" menu-close href="#" enable-menu-with-back-views="false" ng-click="select(3)">
