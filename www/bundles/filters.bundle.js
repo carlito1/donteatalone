@@ -1,3 +1,21 @@
+angular.module('sentdevs.filters.friendsFilter', [])
+.filter('friends', function () {
+    return function (originalArray, estatus) {
+        originalArray = originalArray || [];
+        query = query || '';
+       
+
+        var filtered = [];
+        angular.forEach(originalArray, function (item) {
+            if ( item.status === '0'){
+                filtered.push(item);
+            }
+           
+        });
+
+        return filtered;
+    };
+});
 angular.module('sentdevs.filters.peopleFilter', [])
 .filter('people', function () {
     return function (originalArray, query) {
@@ -16,4 +34,5 @@ angular.module('sentdevs.filters.peopleFilter', [])
         return filtered;
     };
 });
+
 angular.module('sentdevs.filters', ['sentdevs.filters.peopleFilter']);

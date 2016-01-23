@@ -31,6 +31,7 @@
             $scope.placeOffer = function placeOffer($event) {
                 $event.stopPropagation(); // needed so that event don't bubble to toggleVisible
                 offersService.signForOffer($scope.offerInfo);
+                
             };
         }]
     };  

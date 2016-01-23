@@ -68,7 +68,25 @@
                     surname: 'Jolie',
                     status: eStatus.WAITING,
                     picture: 'https://external-vie1-1.xx.fbcdn.net/safe_image.php?d=AQB0kZh_Sj1LFFHN&w=264&h=264&url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F2%2F20%2FAngelina_Jolie_Cannes_2011.jpg&colorbox&f'
+                },
+                {
+                    name: 'Taylor',
+                    surname: 'Swift',
+                    status: eStatus.NOT_FRIEND,picture:'http://static1.businessinsider.com/image/52790bfd69beddf46041ccc2/taylor-swift-wrote-an-op-ed-in-the-wall-street-journal-and-its-filled-with-fascinating-insights.jpg'
+                },
+                {
+                    name: 'Micky',
+                    surname: 'Mouse',
+                    status: eStatus.NOT_FRIEND,
+                    picture:'http://wondersofdisney.yolasite.com/resources/mickeymouse/mickey/faces/classicmickhead.gif'
+                },
+                {
+                    name: 'Emma',
+                    surname: 'Stone',
+                    status: eStatus.NOT_FRIEND,
+                    picture:'http://img0.ndsstatic.com/wallpapers/f96e18dac38b66ad181d5bbbb8714c51_large.jpeg'
                 }
+                
             ];
         },
         /**

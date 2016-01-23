@@ -11,14 +11,33 @@
             <ion-item class="item-divider">
                 Friends
             </ion-item>
-            <ion-item ng-repeat="person in people | people: searchQuery" class="item item-avatar">
-                <img ng-src="{{person.picture}}" />
+            <ion-item ng-repeat="person in people | people: searchQuery | filter:{status: '0'}" class="item item-avatar">
+                <img ng-src="{{person.picture }}" />
                 <h2 class="item-text-center item-text-wrap">{{person.name}} {{person.surname}}</h2>
+            </ion-item>
+        </ion-list>
+         <ion-list>
+            <ion-item class="item-divider">
+                Waiting List
+            </ion-item>
+            <ion-item ng-repeat="person in people | people: searchQuery | filter:{status: '1'}"  class="item item-avatar">
+                <img ng-src="{{person.picture }}" />
+                <h2 class="item-text-center item-text-wrap">{{person.name}} {{person.surname}}</h2>
+                <span class="place-offer">
+                <button class="button button-light" ng-click="cencelRequest(#event)"><i class="icon ion-ios-minus-empty"></i></button>
+                </span>
             </ion-item>
         </ion-list>
         <ion-list>
             <ion-item class="item-divider">
                 Suggested people
+            </ion-item>
+            <ion-item ng-repeat="person in people | people: searchQuery | filter:{status: '2'}"  class="item item-avatar">
+                <img ng-src="{{person.picture }}" />
+                <h2 class="item-text-center item-text-wrap">{{person.name}} {{person.surname}}</h2>
+                <span class="place-offer">
+                <button class="button button-light" ng-click="friendRequest(#event)"><i class="icon ion-ios-plus-empty"></i></button>
+                </span>
             </ion-item>
         </ion-list>
     </ion-content>

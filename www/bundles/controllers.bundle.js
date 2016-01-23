@@ -7,7 +7,7 @@ angular.module('sentdevs.controllers.addOffer', [])
         console.log($scope.offer);
         offersService.createOffer($scope.offer).then(function(bStatus) {
             console.log('Totrata', bStatus);
-            $state.go('loged.tab.trending');
+            $state.go('loged.tab.trending');  
         });
     };
 }]);
@@ -68,6 +68,13 @@ angular.module('sentdevs.controllers.peopleController', [])
     //Initialization in case we don't have data;
     $scope.people = [];
     $scope.people = peopleService.getAll();
+    
+    $scope.friendRequest = function() {
+      
+      var r = Math.ceil(Math.random() * 1000);
+      $scope.person
+    };
+    
 }]);
 angular.module('sentdevs.controllers.trendingController', [])
 .controller('TrendingController', ['$scope', 'offersService', function ($scope, offersService) {

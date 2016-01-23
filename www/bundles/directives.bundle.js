@@ -31,6 +31,32 @@ angular.module('sentdevs.directives.offerDirective', [])
             $scope.placeOffer = function placeOffer($event) {
                 $event.stopPropagation(); // needed so that event don't bubble to toggleVisible
                 offersService.signForOffer($scope.offerInfo);
+                
+            };
+        }]
+    };  
+}]); 
+angular.module('sentdevs.directives.peopleDirective', [])
+.directive('sdPeople', [function () {
+    return {
+        templateUrl: function () {
+            console.log('template url');
+            return './templates/directives/offer.html';
+        },
+        scope: {
+            offerInfo: '=people'
+        },
+        restrict: 'E',  
+        controller: ['$scope', 'people', function ($scope, peopleService) {
+            $scope.visible = true;
+            
+            $scope.friendRequest = function friendRequest($event) {
+                
+            };
+            
+            $scope.cencelRequest = function friendRequest($event) {
+                $event.person.pop();
+                
             };
         }]
     };  

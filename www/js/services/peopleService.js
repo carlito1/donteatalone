@@ -11,4 +11,18 @@
             return result;
         }
     };
+    
+    function cencelFriendRequest(eStatus) {
+            people.getAll().then(function(people){
+               
+            });
+        
+    }
+    
+     function FreindRequest(eStatus) {
+           
+        
+    }
+    
+    
 }]);

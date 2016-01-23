@@ -113,7 +113,7 @@ angular.module('sentdevs.controllers.addOffer', [])
         console.log($scope.offer);
         offersService.createOffer($scope.offer).then(function(bStatus) {
             console.log('Totrata', bStatus);
-            $state.go('loged.tab.trending');
+            $state.go('loged.tab.trending');  
         });
     };
 }]);
@@ -174,6 +174,13 @@ angular.module('sentdevs.controllers.peopleController', [])
     //Initialization in case we don't have data;
     $scope.people = [];
     $scope.people = peopleService.getAll();
+    
+    $scope.friendRequest = function() {
+      
+      var r = Math.ceil(Math.random() * 1000);
+      $scope.person
+    };
+    
 }]);
 angular.module('sentdevs.controllers.trendingController', [])
 .controller('TrendingController', ['$scope', 'offersService', function ($scope, offersService) {
@@ -226,11 +233,55 @@ angular.module('sentdevs.directives.offerDirective', [])
             $scope.placeOffer = function placeOffer($event) {
                 $event.stopPropagation(); // needed so that event don't bubble to toggleVisible
                 offersService.signForOffer($scope.offerInfo);
+                
+            };
+        }]
+    };  
+}]); 
+angular.module('sentdevs.directives.peopleDirective', [])
+.directive('sdPeople', [function () {
+    return {
+        templateUrl: function () {
+            console.log('template url');
+            return './templates/directives/offer.html';
+        },
+        scope: {
+            offerInfo: '=people'
+        },
+        restrict: 'E',  
+        controller: ['$scope', 'people', function ($scope, peopleService) {
+            $scope.visible = true;
+            
+            $scope.friendRequest = function friendRequest($event) {
+                
+            };
+            
+            $scope.cencelRequest = function friendRequest($event) {
+                $event.person.pop();
+                
             };
         }]
     };  
 }]); 
 angular.module('sentdevs.directives', ['sentdevs.directives.offerDirective']);
+angular.module('sentdevs.filters.friendsFilter', [])
+.filter('friends', function () {
+    return function (originalArray, estatus) {
+        originalArray = originalArray || [];
+        query = query || '';
+       
+
+        var filtered = [];
+        angular.forEach(originalArray, function (item) {
+            if ( item.status === '0'){
+                filtered.push(item);
+            }
+           
+        });
+
+        return filtered;
+    };
+});
 angular.module('sentdevs.filters.peopleFilter', [])
 .filter('people', function () {
     return function (originalArray, query) {
@@ -249,6 +300,7 @@ angular.module('sentdevs.filters.peopleFilter', [])
         return filtered;
     };
 });
+
 angular.module('sentdevs.filters', ['sentdevs.filters.peopleFilter']);
 
 angular.module('sentdevs.services.dataService', [])
@@ -321,7 +373,25 @@ angular.module('sentdevs.services.dataService', [])
                     surname: 'Jolie',
                     status: eStatus.WAITING,
                     picture: 'https://external-vie1-1.xx.fbcdn.net/safe_image.php?d=AQB0kZh_Sj1LFFHN&w=264&h=264&url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F2%2F20%2FAngelina_Jolie_Cannes_2011.jpg&colorbox&f'
+                },
+                {
+                    name: 'Taylor',
+                    surname: 'Swift',
+                    status: eStatus.NOT_FRIEND,picture:'http://static1.businessinsider.com/image/52790bfd69beddf46041ccc2/taylor-swift-wrote-an-op-ed-in-the-wall-street-journal-and-its-filled-with-fascinating-insights.jpg'
+                },
+                {
+                    name: 'Micky',
+                    surname: 'Mouse',
+                    status: eStatus.NOT_FRIEND,
+                    picture:'http://wondersofdisney.yolasite.com/resources/mickeymouse/mickey/faces/classicmickhead.gif'
+                },
+                {
+                    name: 'Emma',
+                    surname: 'Stone',
+                    status: eStatus.NOT_FRIEND,
+                    picture:'http://img0.ndsstatic.com/wallpapers/f96e18dac38b66ad181d5bbbb8714c51_large.jpeg'
                 }
+                
             ];
         },
         /**
@@ -472,6 +542,13 @@ angular.module('sentdevs.services.peopleService', [])
             return result;
         }
     };
+    
+    function cencelFriendRequest(eStatus) {
+       
+        
+    }
+    
+    
 }]);
 angular.module('sentdevs.services.principalService', [])
 .factory('principal', ['$q', '$openFB', '$state', '$log', function ($q, $openFB, $state, $log) {
