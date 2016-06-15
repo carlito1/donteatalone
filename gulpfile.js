@@ -68,29 +68,28 @@ gulp.task('jshint', function () {
  * Truncate all javascript files from www/js/controllers into controllersBundle
  **/
 gulp.task('controllers', ['jshint'], function () {
-    Promise.resolve(
-    gulp.src('www/js/controllers/*.js')
+    return gulp.src('www/js/controllers/*.js')
         .pipe(concat('controllers.bundle.js'))
-        .pipe(gulp.dest(bundlesPath)));
+        .pipe(gulp.dest(bundlesPath));
 });
 gulp.task('services', ['jshint'], function () {
-    Promise.resolve(gulp.src('www/js/services/*.js')
+    return gulp.src('www/js/services/*.js')
         .pipe(concat('services.bundle.js'))
-        .pipe(gulp.dest(bundlesPath)));
+        .pipe(gulp.dest(bundlesPath));
 });
 gulp.task('directives', ['jshint'], function () {
-    Promise.resolve(gulp.src('www/js/directives/*.js')
+    return gulp.src('www/js/directives/*.js')
         .pipe(concat('directives.bundle.js'))
-        .pipe(gulp.dest(bundlesPath)));
+        .pipe(gulp.dest(bundlesPath));
 });
 gulp.task('filters', ['jshint'], function () {
-    Promise.resolve(gulp.src('www/js/filters/*.js')
+    return gulp.src('www/js/filters/*.js')
         .pipe(concat('filters.bundle.js'))
-        .pipe(gulp.dest(bundlesPath)));
+        .pipe(gulp.dest(bundlesPath));
 });
 gulp.task('app', ['controllers', 'services', 'directives', 'filters'], function () {
-    Promise.resolve(gulp.src(['www/js/app.js', bundlesPath + '/*.bundle.js', '!www/bundles/app.bundle.js'])
+    return gulp.src(['www/js/app.js', bundlesPath + '/*.bundle.js', '!www/bundles/app.bundle.js'])
         .pipe(concat('app.bundle.js'))
-        .pipe(gulp.dest(bundlesPath)));
+        .pipe(gulp.dest(bundlesPath));
 });
 //TODO uglify bundles

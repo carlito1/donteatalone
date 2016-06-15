@@ -5,7 +5,29 @@
   The Friends service returns an array of friend data
 -->
 <ion-view view-title="{{chat.name}}">
-    <ion-content>
-        <p>To dela?</p>
+    <ion-content delegate-handle="chatList">
+        <ion-list>
+            <ion-item class="item-remove-animate item-avatar item-icon-right"
+                      ng-repeat="message in chat"
+                      type="item-text-wrap">
+                <img ng-src="{{message.sender.avatar}}" />
+                <h3>{{message.sender.name}} {{message.sender.surname}}</h3>
+                <p>{{message.message}}</p>
+            </ion-item>
+        </ion-list>
     </ion-content>
+    <ion-footer-bar keyboard-attach class="bar-stable item-input-inset">
+        <label class="item-input-wrapper">
+            <input type="text"
+               ng-model="message"
+               placeholder="Type your message..."
+               class=""
+               ng-keydown="handleKeyDown( $event )" />
+        </label>
+        <button class="button button-clear"
+            ng-click="sendMessage()">
+            Send
+        </button>
+        <ion-spinner ng-show="sending"></ion-spinner>
+    </ion-footer-bar>
 </ion-view>

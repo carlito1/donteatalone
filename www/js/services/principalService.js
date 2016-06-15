@@ -27,16 +27,13 @@ angular.module('sentdevs.services.principalService', [])
         },
         
         getIdentify: function() {
-            var deferred = $q.defer();
             if(angular.isDefined(_identity)) {
-                deferred.resolve(_identity);
+                return $q.all(_identity);
             }
-            setIdentity().then(function(identity) {
+            return setIdentity().then(function(identity) {
                 _identity = identity;
-                deferred.resolve(_identity);
-            });
-            
-            return deferred.promise;
+                return _identity;
+            });            
         },
         
         logIn: function() {

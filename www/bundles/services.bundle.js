@@ -1,4 +1,57 @@
+angular.module('sentdevs.services', ['sentdevs.services.dataService',
+    'sentdevs.services.offersService',
+    'sentdevs.services.peopleService',
+    'sentdevs.services.userService',
+    'sentdevs.services.principalService',
+    'sentdevs.services.chatService'
+]);
+angular.module('sentdevs.services.chatService', [])
+.factory('chatService', ['$q', '$log', function ($q, $log) {
+    var chats = [{
+        id: 0,
+        header: 'Samo bedaki in konji',
+        messages: [
+            {
+                id: 1,
+                sender: {
+                    avatar: 'http://media.comicbook.com/wp-content/uploads/2013/08/rambo-tv-series.jpg',
+                    name: 'John',
+                    surname: 'Rambo'
+                },
+                message: 'Kva je?!',
+                timestamp: '1465997742'
+            },
+            {
+                id: 2,
+                sender: {
+                    avatar: 'http://media.comicbook.com/wp-content/uploads/2013/08/rambo-tv-series.jpg',
+                    name: 'John',
+                    surname: 'Rambo'
+                },
+                message: 'Picke?!',
+                timestamp: '1465997743'
+            }
+        ]
+    }];
+    return {
+        getChats: function getChats() {
+            var deferred = $q.defer();
+            setTimeout( function () {
+                deferred.resolve( chats );
+            }, 500 )
+            return deferred.promise;
+        },
 
+        getMessages: function( id ) {
+            return $q.all( chats[id].messages );
+        },
+
+        sendMessage: function( id, message ) {
+            chats[id].messages.push( message );
+            return $q.all( message );
+        }
+    };
+}]);
 angular.module('sentdevs.services.dataService', [])
 .factory('dataService', ['$http', '$q', function ($http, $q) {
     var eStatus = {
@@ -97,7 +150,7 @@ angular.module('sentdevs.services.dataService', [])
         updateOffer: function updateOffer(offer) {
 
             //simulate sockets.
-            var eater = offer.eaters[offer.eaters.length - 1];
+            var eater = offer.eaters.slice( -1 ).pop();
             this.onEaterAdded(offer.id, eater);
             var deferred = $q.defer();
 
@@ -282,16 +335,13 @@ angular.module('sentdevs.services.principalService', [])
         },
         
         getIdentify: function() {
-            var deferred = $q.defer();
             if(angular.isDefined(_identity)) {
-                deferred.resolve(_identity);
+                return $q.all(_identity);
             }
-            setIdentity().then(function(identity) {
+            return setIdentity().then(function(identity) {
                 _identity = identity;
-                deferred.resolve(_identity);
-            });
-            
-            return deferred.promise;
+                return _identity;
+            });            
         },
         
         logIn: function() {
@@ -318,9 +368,3 @@ angular.module('sentdevs.services.userService', [])
         }
     };
 }]);
-angular.module('sentdevs.services', ['sentdevs.services.dataService',
-    'sentdevs.services.offersService',
-    'sentdevs.services.peopleService',
-    'sentdevs.services.userService',
-    'sentdevs.services.principalService'
-]);
