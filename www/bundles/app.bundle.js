@@ -602,7 +602,8 @@ angular.module('sentdevs.services.dataService', [])
                 location: offerSnap.child( 'location' ).val(),
                 time: offerSnap.child( 'time' ).val(),
                 owner: {},
-                eaters: []
+                eaters: [],
+                canEdit: true
             };
             var ownerPromise = fb.ref( 'peoples/' + creatorId ).once( 'value' )
             .then( function ( ownerSnap ) {
@@ -633,7 +634,22 @@ angular.module('sentdevs.services.dataService', [])
 
                 return $q.all( promises );
             } )
-            return $q.when( eatersPromise, ownerPromise )
+
+            var editPromise = principal.getIdentify()
+            .then( function( identity ){
+                return fb.ref( 'waitingList/' + offerModel.id + '/' + identity.id  )
+                .once( 'value' )
+                .then( function ( waitSnap ) {
+                    if( waitSnap.exists() ) {
+                        offerModel.canEdit = false;
+                    }
+                    return $q.when();
+                } );
+            } )
+            .then( function (  ) {
+                
+            } )
+            return $q.when( eatersPromise, ownerPromise, editPromise )
             .then( function(){
                 return offerModel;
             } );
@@ -717,8 +733,11 @@ angular.module('sentdevs.services.offersService', [])
     }
     function subscribe(offer, fnCallback) {
         firebase.database().ref( 'offersEaters/' + offer.id )
-        .on( 'value', function( offerSnap ){
-            dataService.buildOffer( offerSnap )
+        .on( 'value', function( offerSnap ) { //Listen on eater added
+            firebase.database.ref( 'offers/' + offer.id )
+            .once( 'value' ).then( function( offerSnap ){
+                return dataService.buildOffer( offerSnap );            
+            })
             .then( function ( offerModel ) {
                 fnCallback( offerModel );
             } );
@@ -729,7 +748,7 @@ angular.module('sentdevs.services.offersService', [])
     }
     
     function getUnresolvedOffersCount() {
-        return $q.all(12);
+        return $q.when(12);
    
     }
     

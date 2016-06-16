@@ -52,8 +52,11 @@
     }
     function subscribe(offer, fnCallback) {
         firebase.database().ref( 'offersEaters/' + offer.id )
-        .on( 'value', function( offerSnap ){
-            dataService.buildOffer( offerSnap )
+        .on( 'value', function( offerSnap ) { //Listen on eater added
+            firebase.database.ref( 'offers/' + offer.id )
+            .once( 'value' ).then( function( offerSnap ){
+                return dataService.buildOffer( offerSnap );            
+            })
             .then( function ( offerModel ) {
                 fnCallback( offerModel );
             } );
@@ -64,7 +67,7 @@
     }
     
     function getUnresolvedOffersCount() {
-        return $q.all(12);
+        return $q.when(12);
    
     }
     

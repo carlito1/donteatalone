@@ -151,7 +151,8 @@
                 location: offerSnap.child( 'location' ).val(),
                 time: offerSnap.child( 'time' ).val(),
                 owner: {},
-                eaters: []
+                eaters: [],
+                canEdit: true
             };
             var ownerPromise = fb.ref( 'peoples/' + creatorId ).once( 'value' )
             .then( function ( ownerSnap ) {
@@ -182,7 +183,22 @@
 
                 return $q.all( promises );
             } )
-            return $q.when( eatersPromise, ownerPromise )
+
+            var editPromise = principal.getIdentify()
+            .then( function( identity ){
+                return fb.ref( 'waitingList/' + offerModel.id + '/' + identity.id  )
+                .once( 'value' )
+                .then( function ( waitSnap ) {
+                    if( waitSnap.exists() ) {
+                        offerModel.canEdit = false;
+                    }
+                    return $q.when();
+                } );
+            } )
+            .then( function (  ) {
+                
+            } )
+            return $q.when( eatersPromise, ownerPromise, editPromise )
             .then( function(){
                 return offerModel;
             } );
