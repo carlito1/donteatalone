@@ -6,7 +6,13 @@
     $scope.loadingPeople = true;
     $scope.friends = [];
     $scope.people = [];
+<<<<<<< HEAD
     $scope.pending = [];
+=======
+    $scope.people = peopleService.getAll();
+    console.log('test');
+    
+>>>>>>> development
 
   
     peopleService.getFriends( function( people ) {

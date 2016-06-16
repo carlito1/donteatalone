@@ -106,8 +106,6 @@
                 peoplesSnapshot.forEach( function( personSnapshot ){
                     peopleList.push( personSnapshot.key );
                 } );
-                
-                return peopleList;           
             });
         },
         /**
@@ -212,5 +210,5 @@
         subscribeToOffersChanges: function subscribeToOffersChanges(id, fnCallback){
             offersChangesSubscribers[id] = fnCallback;
         }
-    };
+    }
 }]);

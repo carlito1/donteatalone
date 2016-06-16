@@ -5,7 +5,8 @@ angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
     'sentdevs.controllers.loginController',
     'sentdevs.controllers.chatDetailController',
     'sentdevs.controllers.offersCounterController',
-    'sentdevs.controllers.addOffer'
+    'sentdevs.controllers.addOffer',
+    'sentdevs.controllers.offersController'
 ]);
 angular.module('sentdevs.controllers.addOffer', [])
 .controller('AddOfferController', ['$scope', '$state', 'offersService',  function($scope, $state, offersService){
@@ -126,12 +127,31 @@ angular.module('sentdevs.controllers.navigationBarController', [])
         $scope.selected = pageIndex;
     };
 }]);
+angular.module('sentdevs.controllers.offersController', [])
+.controller('OffersController', ['$scope', 'offersService', function ($scope, offersService) {
+
+       $scope.myoffer = {};
+       offersService.getmyOffers()
+       .then(function (offer) {
+            $scope.myoffer = offer;
+       });
+       
+       $scope.mypastoffers = [];
+       offersService.getmypastoffers()
+       .then(function (pastoffer) {
+            console.log("test",pastoffer);
+            $scope.mypastoffers = pastoffer;
+       });
+     
+}]);
 angular.module('sentdevs.controllers.offersCounterController', [])
 .controller('OffersCounterController', ['$scope', 'offersService', function ($scope, offersService) {
-    $scope.counter = 0;
+        $scope.counter = 0;
     
-    offersService.getUnresolvedOffersCount()
-    .then(function(coutner){
+
+        offersService.getUnresolvedOffersCount().then(function(coutner){
+
+
         $scope.counter = coutner;
     });
 }]);
@@ -143,7 +163,13 @@ angular.module('sentdevs.controllers.peopleController', [])
     $scope.loadingPeople = true;
     $scope.friends = [];
     $scope.people = [];
+<<<<<<< HEAD
     $scope.pending = [];
+=======
+    $scope.people = peopleService.getAll();
+    console.log('test');
+    
+>>>>>>> development
 
   
     peopleService.getFriends( function( people ) {

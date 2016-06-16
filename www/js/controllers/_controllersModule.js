@@ -5,5 +5,6 @@
     'sentdevs.controllers.loginController',
     'sentdevs.controllers.chatDetailController',
     'sentdevs.controllers.offersCounterController',
-    'sentdevs.controllers.addOffer'
+    'sentdevs.controllers.addOffer',
+    'sentdevs.controllers.offersController'
 ]);
