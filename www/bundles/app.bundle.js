@@ -539,6 +539,7 @@ angular.module('sentdevs.services.dataService', [])
         * @returns {offers[]} All offers
         **/
         getOffers: function getOffers( fnCallback ) {
+            offers = [];
             var self = this;
             var fb = firebase.database();
             principal.getIdentify()
