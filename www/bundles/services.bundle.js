@@ -53,7 +53,7 @@ angular.module('sentdevs.services.chatService', [])
     };
 }]);
 angular.module('sentdevs.services.dataService', [])
-.factory('dataService', ['$http', '$q', function ($http, $q) {
+.factory('dataService', ['$http', '$q', 'principal', function ($http, $q, principal) {
     var eStatus = {
         FRIEND : 0,
         WAITING : 1,
@@ -62,6 +62,7 @@ angular.module('sentdevs.services.dataService', [])
     var offerAddedSubscribers = [];
     var offersChangesSubscribers = {};
     var chatSubscribers = {};
+   
     var offers = [{
         id: 1,
         owner: {
@@ -97,51 +98,100 @@ angular.module('sentdevs.services.dataService', [])
          });
      }
     return {
-        getPeople: function () {
-            return [
-                {
-                    name: 'Žiga',
-                    surname: 'Ajdnik',
-                    status: eStatus.FRIEND,
-                    picture: 'https://scontent-vie1-1.xx.fbcdn.net/hprofile-xat1/v/t1.0-1/p160x160/10616063_10201741780905426_7128050048956798732_n.jpg?oh=e8842f9b17d004c24cbc9ef006caeeae&oe=56D55124'
-                },
-                {
-                    name: 'Marko',
-                    surname: 'Deželak',
-                    status: eStatus.FRIEND,
-                    picture: 'https://scontent-vie1-1.xx.fbcdn.net/hprofile-frc3/v/t1.0-1/c46.47.579.579/s160x160/47055_131205306931574_6086166_n.jpg?oh=3fec7d406af034a94741970eed039832&oe=56E4F71D',
-                },
-                {
-                    name: 'Carmen',
-                    surname: 'Electra',
-                    status: eStatus.FRIEND,
-                    picture: 'https://scontent-vie1-1.xx.fbcdn.net/hprofile-xtp1/v/t1.0-1/c272.0.160.160/p160x160/12208819_10153596288811265_6759630954911669327_n.jpg?oh=0bdb8d9f6d57fd4b0933d3e528532192&oe=5712F2EA'
-                },
-                {
-                    name: 'Angelina',
-                    surname: 'Jolie',
-                    status: eStatus.WAITING,
-                    picture: 'https://external-vie1-1.xx.fbcdn.net/safe_image.php?d=AQB0kZh_Sj1LFFHN&w=264&h=264&url=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F2%2F20%2FAngelina_Jolie_Cannes_2011.jpg&colorbox&f'
-                },
-                {
-                    name: 'Taylor',
-                    surname: 'Swift',
-                    status: eStatus.NOT_FRIEND,picture:'http://static1.businessinsider.com/image/52790bfd69beddf46041ccc2/taylor-swift-wrote-an-op-ed-in-the-wall-street-journal-and-its-filled-with-fascinating-insights.jpg'
-                },
-                {
-                    name: 'Micky',
-                    surname: 'Mouse',
-                    status: eStatus.NOT_FRIEND,
-                    picture:'http://wondersofdisney.yolasite.com/resources/mickeymouse/mickey/faces/classicmickhead.gif'
-                },
-                {
-                    name: 'Emma',
-                    surname: 'Stone',
-                    status: eStatus.NOT_FRIEND,
-                    picture:'http://img0.ndsstatic.com/wallpapers/f96e18dac38b66ad181d5bbbb8714c51_large.jpeg'
-                }
+        getPeople: function ( fnCallback ) {
+            firebase.database().ref( '/peoples' ).on( 
+            'value', 
+            function( personsSnapshot ) {
+                principal.getIdentify()
+                .then( function ( identity ) {
+                    var aPeople = [];
+                    personsSnapshot.forEach( function( personSnapshot ){
+                        var personModel = {
+                            name: personSnapshot.child( 'name' ).val(),
+                            avatar: personSnapshot.child( 'avatar' ).val(),
+                            id: personSnapshot.key
+                        }
+                        if( identity.id !== personModel.id ) {
+                            aPeople.push( personModel ); // Filter self
+                        }
+                    } );
+                    fnCallback( aPeople );
+                } );
+             } ); 
+        },
+
+        getFriends: function( fnCallback ) {
+            return principal.getIdentify()
+            .then( function( identity ) {
+                return firebase.database().ref( 'peoples/' + identity.id + '/friends').on( 
+                'value',
+                function ( pendingSnapshots ) {
+                    var pendingPromises = [];
+                    pendingSnapshots.forEach( function( pendingSnapshots ) {
+                        var path = 'peoples/' + pendingSnapshots.key;
+                        var oPromise = firebase.database().ref( path ).once( 'value' );
+                        pendingPromises.push( oPromise );
+                    } );
+
+                    $q.all( pendingPromises )
+                    .then( function( result ) {
+                        var aPeople = [];
+                        result.forEach( function( peopleSnapshot ) {
+                            var personModel = {
+                                name: peopleSnapshot.child( 'name' ).val(),
+                                avatar: peopleSnapshot.child( 'avatar' ).val(),
+                                id: peopleSnapshot.key
+                            };
+                            aPeople.push( personModel );
+                        } );
+                        fnCallback( aPeople );
+                    } );
+                } );
+            } );
+        },
+        getPending: function( fnCallback ) {
+            return principal.getIdentify()
+            .then( function( identity ) {
+                return firebase.database().ref( 'peoples/' + identity.id + '/pending').on( 
+                'value',
+                function ( pendingSnapshots ) {
+                    var pendingPromises = [];
+                    pendingSnapshots.forEach( function( pendingSnapshots ) {
+                        var path = 'peoples/' + pendingSnapshots.key;
+                        var oPromise = firebase.database().ref( path ).once( 'value' );
+                        pendingPromises.push( oPromise );
+                    } );
+
+                    $q.all( pendingPromises )
+                    .then( function( result ) {
+                        var aPeople = [];
+                        result.forEach( function( peopleSnapshot ) {
+                            var personModel = {
+                                name: peopleSnapshot.child( 'name' ).val(),
+                                avatar: peopleSnapshot.child( 'avatar' ).val(),
+                                id: peopleSnapshot.key
+                            };
+                            aPeople.push( personModel );
+                        } );
+                        fnCallback( aPeople );
+                    } );
+                } );
+            } );
+        },
+
+        getOnce: function( friendList ) {
+            return principal.getIdentify()
+            .then( function( identity ) {
+                return firebase.database().ref( 'peoples/' + identity.id + '/' + friendList ).once( 'value' );
+            } )
+            .then( function( peoplesSnapshot ) {
+                var peopleList = [];
+                peoplesSnapshot.forEach( function( personSnapshot ){
+                    peopleList.push( personSnapshot.key );
+                } );
                 
-            ];
+                return peopleList;           
+            });
         },
         /**
         * Adds new eater to offer with given id
@@ -254,39 +304,130 @@ angular.module('sentdevs.services.offersService', [])
     };
 }]);
 angular.module('sentdevs.services.peopleService', [])
-.factory('peopleService', ['dataService', function (dataService) {
-    var people = dataService.getPeople();
+.factory('peopleService', ['dataService', '$q', 'principal', function ( dataService, $q, principal ) {
     return {
-        getAll: function () {
-            return people;
+        getFriends: function ( fnCallback ) {
+            return dataService.getFriends( fnCallback );
         },
-        findPerson: function () {
-            var result = [];
-            result.push(people[0]);
-            return result;
+        getPending: function( fnCallback ) {
+            return dataService.getPending( fnCallback );
+        },
+        getPeople: function( fnCallback ) {
+            var peopleFilter = function( peoples ) {
+                var lists = [ 'pending', 'waiting', 'friends' ];
+                var promises = [];
+                lists.forEach( function ( list ) {
+                    promises.push( dataService.getOnce( list )
+                    .then( function( people ) {
+                        peoples = peoples.filter( function ( item ) {
+                            return people.indexOf( item.id ) === -1;
+                        } );
+                    } ) );
+                } );
+
+                $q.all( promises )
+                .then( function() {
+                    fnCallback( peoples );
+                } );
+            }
+            return dataService.getPeople( peopleFilter );
+        },
+
+        addFriend: function( friendId ) {
+            var userId;
+            return principal.getIdentify()
+            .then( function ( identity ) {
+                userId = identity.id;
+                return firebase.database().ref( 'peoples/' + friendId + '/pending/' + identity.id ).set( true );
+            } )
+            .then( function () {
+                return firebase.database().ref( 'peoples/' + userId + '/waiting/' + friendId ).set( true );
+            } )
+        },
+
+        acceptFriendRequest: function( id ) {
+            var userId;
+            return principal.getIdentify()
+            .then( function( identity ) {
+                userId = identity.id;
+                return firebase.database().ref( 'peoples/' + identity.id + '/friends/' + id ).set( true );
+            } )
+            .then( function () {
+                return firebase.database().ref( 'peoples/' + id + '/friends/' + userId ).set( true );
+            } )
+            .then( function () {
+                return this.declineFriendRequest( id );
+            }.bind( this ) )
+        },
+
+        declineFriendRequest: function( id ) {
+            var userId; 
+            return principal.getIdentify()
+            .then( function( identity ) {
+                userId = identity.id;
+                return firebase.database().ref( 'peoples/' + identity.id + '/pending/' + id ).remove();
+            } )
+            .then( function () {
+                var path = 'peoples/' + id + '/waiting/' + userId;
+                return firebase.database().ref( 'peoples/' + id + '/waiting/' + userId ).remove();
+            } )
         }
     };
-    
-    function cencelFriendRequest(eStatus) {
-            people.getAll().then(function(people){
-               
-            });
-        
-    }
-    
-     function FreindRequest(eStatus) {
-           
-        
-    }
-    
-    
 }]);
 angular.module('sentdevs.services.principalService', [])
 .factory('principal', ['$q', '$openFB', '$state', '$log', function ($q, $openFB, $state, $log) {
     var _identity = undefined;
+
+     function registerUser( oUser ) {
+        var query = firebase.database().ref('peoples').orderByKey();
+        return query.once( 'value' )
+        .then( function( personsSnapshot ) {
+            var bMatch = false;
+            var key;
+            personsSnapshot.forEach( function( personSnapshot ) {
+                key = personSnapshot.key;
+                var email = personSnapshot.child( 'email' ).val();
+                if( email &&
+                    email === oUser.email ) {
+                        // We have a match
+                        bMatch = true;
+                        return bMatch;
+                    }
+            } );
+
+            if( !bMatch ) {
+                key = firebase.database().ref().child( 'peoples' ).push().key;
+                return firebase.database().ref( 'peoples/' + key ).set( oUser )
+                .then( function () {
+                    return key;
+                } );
+            } else {
+                return $q.when( key );
+            }
+        } );
+    }
+    function toDataUrl(url){
+        var deferred = $q.defer();
+        var xhr = new XMLHttpRequest();
+        xhr.responseType = 'blob';
+        xhr.onload = function() {
+        var reader  = new FileReader();
+        reader.onloadend = function () {
+            deferred.resolve(reader.result);
+        }
+        reader.readAsDataURL(xhr.response);
+        };
+        xhr.open('GET', url);
+        xhr.send();
+
+        return deferred.promise;
+    }
     function setIdentity() {
         //TODO: store user identity in localstorage and perform checking before retriving from api
-        return $q.all([$openFB.api({path: '/me'}), $openFB.api({path: '/me/picture', params: {redirect: false}})]).then(function(aResolved) {
+        return $q.all(
+            [$openFB.api({path: '/me'}),
+            $openFB.api({path: '/me/picture', params: {redirect: false}})])
+            .then(function(aResolved) {
             //aResolved[0] == information
             //aResolved[1] == picture path
             
@@ -294,7 +435,7 @@ angular.module('sentdevs.services.principalService', [])
             var identity = {};
             angular.extend(identity, aResolved[0]);
             angular.extend(identity, {avatar: aResolved[1].data.url});
-            
+            identity.id = localStorage.getItem( 'id' );
             return identity;
         });
     }
@@ -310,8 +451,8 @@ angular.module('sentdevs.services.principalService', [])
         },
         
         getIdentify: function() {
-            if(angular.isDefined(_identity)) {
-                return $q.all(_identity);
+            if( angular.isDefined( _identity ) ) {
+                return $q.when(_identity);
             }
             return setIdentity().then(function(identity) {
                 _identity = identity;
@@ -320,13 +461,34 @@ angular.module('sentdevs.services.principalService', [])
         },
         
         logIn: function() {
-            return $openFB.login({scope: 'public_profile, user_friends'}).then(function(token) {
-                // Add token to server
-                return true;
-            }, function(error) {
-                // Error loging in
-                return error;
-            });
+            var provider = new firebase.auth.FacebookAuthProvider();
+            provider.addScope( 'public_profile' );
+            provider.addScope( 'user_friends' );
+            return firebase.auth().signInWithPopup( provider )
+            .then( function( result ) { 
+                var token = result.credential.accessToken;
+                var user = result.user;
+                var canvas = document.createElement( 'canvas' );
+                window.sessionStorage.setItem( 'fbtoken', token );
+                return $q.all( [toDataUrl( user.photoURL ), $q.when( user )] );
+            } )
+            .then( function ( result ) {
+                var userAvatar = result[0];
+                var user = result[1];
+                var userModel = {
+                    name: user.displayName,
+                    avatar: userAvatar,
+                    email: user.email,
+                    friends: {},
+                    offers: {},
+                    chats: {},
+                };
+
+                return registerUser( userModel );
+            } )
+            .then( function ( key ) {
+                localStorage.setItem( 'id', key );
+            } )
         }
     };
 }]);

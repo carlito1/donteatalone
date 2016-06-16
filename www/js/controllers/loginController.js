@@ -6,6 +6,7 @@
         }, function(error){
             //error hapened
             //TODO : handle error
+            console.log( error );
         });
     };
 }]);
