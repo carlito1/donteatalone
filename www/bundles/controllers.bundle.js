@@ -1,12 +1,3 @@
-angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
-    'sentdevs.controllers.trendingController',
-    'sentdevs.controllers.peopleController',
-    'sentdevs.controllers.navigationBarController',
-    'sentdevs.controllers.loginController',
-    'sentdevs.controllers.chatDetailController',
-    'sentdevs.controllers.offersCounterController',
-    'sentdevs.controllers.addOffer'
-]);
 angular.module('sentdevs.controllers.addOffer', [])
 .controller('AddOfferController', ['$scope', '$state', 'offersService',  function($scope, $state, offersService){
     $scope.offer = {};
@@ -125,11 +116,28 @@ angular.module('sentdevs.controllers.navigationBarController', [])
         $scope.selected = pageIndex;
     };
 }]);
+angular.module('sentdevs.controllers.offersController', [])
+.controller('OffersController', ['$scope', 'offersService', function ($scope, offersService) {
+
+       $scope.myoffer = {};
+       offersService.getmyOffers()
+       .then(function (offer) {
+            $scope.myoffer = offer;
+       });
+       
+       $scope.mypastoffers = [];
+       offersService.getmypastoffers()
+       .then(function (pastoffer) {
+            console.log("test",pastoffer);
+            $scope.mypastoffers = pastoffer;
+       });
+     
+}]);
 angular.module('sentdevs.controllers.offersCounterController', [])
 .controller('OffersCounterController', ['$scope', 'offersService', function ($scope, offersService) {
-    $scope.counter = 0;
+        $scope.counter = 0;
     
-    offersService.getUnresolvedOffersCount().then(function(coutner){
+        offersService.getUnresolvedOffersCount().then(function(coutner){
         $scope.counter = coutner;
     });
 }]);
@@ -138,6 +146,8 @@ angular.module('sentdevs.controllers.peopleController', [])
     //Initialization in case we don't have data;
     $scope.people = [];
     $scope.people = peopleService.getAll();
+    console.log('test');
+    
 
 }]);
 angular.module('sentdevs.controllers.trendingController', [])
@@ -149,3 +159,13 @@ angular.module('sentdevs.controllers.trendingController', [])
         //Error happended. Notify user
     });
 }]);
+angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
+    'sentdevs.controllers.trendingController',
+    'sentdevs.controllers.peopleController',
+    'sentdevs.controllers.navigationBarController',
+    'sentdevs.controllers.loginController',
+    'sentdevs.controllers.chatDetailController',
+    'sentdevs.controllers.offersCounterController',
+    'sentdevs.controllers.addOffer',
+    'sentdevs.controllers.offersController'
+]);

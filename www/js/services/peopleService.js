@@ -12,17 +12,13 @@
         }
     };
     
-    function cencelFriendRequest(eStatus) {
-            people.getAll().then(function(people){
-               
-            });
+    function cancelFriendRequest(person) {
+            person.status = person.status.eStatus[3];
+    };
         
-    }
     
-     function FreindRequest(eStatus) {
-           
-        
-    }
+    
+   
     
     
 }]);

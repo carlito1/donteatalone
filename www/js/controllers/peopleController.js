@@ -3,5 +3,7 @@
     //Initialization in case we don't have data;
     $scope.people = [];
     $scope.people = peopleService.getAll();
+    console.log('test');
+    
 
 }]);

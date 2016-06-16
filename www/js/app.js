@@ -63,6 +63,21 @@ angular.module('sentdevs', ['ionic', 'sentdevs.controllers', 'sentdevs.services'
             }
         })
             // setup an abstract state for the tabs directive
+        .state('loged.offers', {
+            url: '/offers',
+            abstract: true,
+            template: '<ion-nav-view name="offers"></ion-nav-view>'
+        })
+        .state( 'loged.offers.mine', {
+            url: '/',
+            views: {
+                'offers': {
+                    templateUrl: 'templates/views/offers-view.html',
+                    controller: 'OffersController'
+
+                }
+            }
+        } )
 
       .state('loged.tab', {
           url: "/tab",

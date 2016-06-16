@@ -1,9 +1,50 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-</head>
-<body>
-    <div>Content goes here.</div>
-</body>
-</html>
+﻿<ion-view view-title="My Offers">
+    <ion-content>
+        <ion-list>
+            <ion-item class="item-divider">
+                My Offers
+            </ion-item>
+                  <ion-item class="item item-avatar"/> 
+                    <img ng-src="{{myoffer.avatar}}" alt="avatar" />
+                    <h2>{{myoffer.name}} {{myoffer.surname}}</h2>
+                    <p>Lunch at <span class="positive">@{{myoffer.location}}</span> at <span class="positive">{{myoffer.time}}</span></p>
+                    <div class="list card animated bounceInLeft" >  
+                   <ion-item ng-repeat="eater in myoffer.eaters" class="item item-avatar"  /> 
+                           <img ng-src="{{eater.avatar}}" alt="avatar"/>
+                           <h2 class="item-text-center item-text-wrap">{{eater.name}} {{eater.surname}}</h2>
+                           <span class="place-offer"><i class="badge badge-assertive">Accepted</i> <span>
+                    </ion-item>
+                    </div>              
+               </ion-item>
+                <ion-item class="item-divider">
+                     Requests to join
+               </ion-item>   
+               
+                    <ion-item ng-repeat="waitlist in myoffer.eatersWaitList" class="item item-avatar">
+                        <img ng-src="{{waitlist.avatar }}" />
+                        <h2 class="item-text-center item-text-wrap">{{waitlist.name}} {{waitlist.surname}}</h2>
+                        <span class="place-offer">
+                        <button class="button button-light" ng-click=""><i class="icon ion-ios-minus-empty"></i></button>
+                        <button class="button button-light" ng-click="acceptOffer(waitlist.id)"><i class="icon ion-ios-plus-empty"></i></button>
+                        </span>
+                    </ion-item>
+                
+        </ion-list>
+        <ion-item class="item-divider">
+                     Past offers
+         </ion-item>
+         
+        <ion-list>
+       
+        <ion-item ng-repeat="past in mypastoffers" class="item item-avatar">
+           <img ng-src="{{past.avatar }}" 
+            <h2>{{past.name}} {{past.surname}}</h2>
+          <p>Lunch at <span class="positive">@{{past.location}}</span> at <span class="positive">{{past.time}}</span></p>
+       
+        </ion-list>
+        
+    </ion-content>
+    <ion-footer-bar class="bar-stable">
+        <a class="button button-clear pull-right icon ion-ios-plus-empty" href="#/loged/tab/addOffer"></a>
+    </ion-footer-bar>
+</ion-view>

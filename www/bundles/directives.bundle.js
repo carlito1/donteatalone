@@ -1,4 +1,3 @@
-angular.module('sentdevs.directives', ['sentdevs.directives.offerDirective']);
 angular.module('sentdevs.directives.offerDirective', [])
 .directive('sdOffer', [function () {
     return {
@@ -37,3 +36,4 @@ angular.module('sentdevs.directives.offerDirective', [])
         }]
     };  
 }]); 
+angular.module('sentdevs.directives', ['sentdevs.directives.offerDirective']);

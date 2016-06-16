@@ -1,4 +1,3 @@
-angular.module('sentdevs.filters', ['sentdevs.filters.peopleFilter']);
 angular.module('sentdevs.filters.peopleFilter', [])
 .filter('people', function () {
     return function (originalArray, query) {
@@ -17,3 +16,5 @@ angular.module('sentdevs.filters.peopleFilter', [])
         return filtered;
     };
 });
+
+angular.module('sentdevs.filters', ['sentdevs.filters.peopleFilter']);

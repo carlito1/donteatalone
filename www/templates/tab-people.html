@@ -24,7 +24,8 @@
                 <img ng-src="{{person.picture }}" />
                 <h2 class="item-text-center item-text-wrap">{{person.name}} {{person.surname}}</h2>
                 <span class="place-offer">
-                <button class="button button-light" ng-click="cencelRequest(#event)"><i class="icon ion-ios-minus-empty"></i></button>
+                <button class="button button-light" ng-click="cencelRequest(person)"><i class="icon ion-ios-minus-empty"></i></button>
+                <button class="button-right button-light" ng-click="friendRequest(perosn)"><i class="icon ion-ios-plus-empty"></i></button>
                 </span>
             </ion-item>
         </ion-list>
@@ -36,7 +37,7 @@
                 <img ng-src="{{person.picture }}" />
                 <h2 class="item-text-center item-text-wrap">{{person.name}} {{person.surname}}</h2>
                 <span class="place-offer">
-                <button class="button button-light" ng-click="friendRequest(#event)"><i class="icon ion-ios-plus-empty"></i></button>
+                <button class="button button-light" ng-click="friendRequest(perosn)"><i class="icon ion-ios-plus-empty"></i></button>
                 </span>
             </ion-item>
         </ion-list>
