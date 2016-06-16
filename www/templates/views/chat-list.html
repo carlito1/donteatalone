@@ -1,9 +1,13 @@
 ﻿<ion-nav-view view-title="Chats">
     <ion-content>
         <ion-list>
-            <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="chat in chats" type="item-text-wrap" href="#/loged/chats/details/{{chat.id}}">
-                <img ng-src="{{chat.face}}">
-                <h2>{{chat.name}}</h2>
+            <ion-item class="item-remove-animate item-avatar item-icon-right"
+                      collection-repeat="chat in chats"
+                      type="item-text-wrap" 
+                      href="#/loged/chats/details/{{chat.id}}"
+                      ng-show="chats">
+                <img ng-src="{{chat.avatar}}">
+                <h2>{{chat.header}}</h2>
                 <p>{{chat.lastText}}</p>
                 <i class="icon ion-chevron-right icon-accessory"></i>
 

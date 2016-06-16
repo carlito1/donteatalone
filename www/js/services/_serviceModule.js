@@ -2,5 +2,6 @@
     'sentdevs.services.offersService',
     'sentdevs.services.peopleService',
     'sentdevs.services.userService',
-    'sentdevs.services.principalService'
+    'sentdevs.services.principalService',
+    'sentdevs.services.chatService'
 ]);

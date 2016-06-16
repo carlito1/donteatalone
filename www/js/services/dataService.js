@@ -96,7 +96,7 @@
         updateOffer: function updateOffer(offer) {
 
             //simulate sockets.
-            var eater = offer.eaters[offer.eaters.length - 1];
+            var eater = offer.eaters.slice( -1 ).pop();
             this.onEaterAdded(offer.id, eater);
             var deferred = $q.defer();
 
