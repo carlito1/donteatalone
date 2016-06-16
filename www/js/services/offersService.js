@@ -157,7 +157,7 @@
         createOffer: createOffer,
         getmyOffers: getMyOffers,
         //acceptOffer: acceptOffer,
-        getmypastoffers: getMyPastOffers
+        getmypastoffers: getMyPastOffers,
         subscribe: subscribe
     };
 }]);

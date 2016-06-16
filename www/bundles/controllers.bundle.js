@@ -163,15 +163,8 @@ angular.module('sentdevs.controllers.peopleController', [])
     $scope.loadingPeople = true;
     $scope.friends = [];
     $scope.people = [];
-<<<<<<< HEAD
     $scope.pending = [];
-=======
-    $scope.people = peopleService.getAll();
-    console.log('test');
-    
->>>>>>> development
 
-  
     peopleService.getFriends( function( people ) {
         $scope.friends = people;
         $scope.loadingFriends = false;
