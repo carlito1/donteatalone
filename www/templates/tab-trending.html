@@ -4,12 +4,7 @@
             <ion-item class="item-divider">
                 2 o'clock
             </ion-item>
-            <sd-offer ng-repeat="offer in offers" offer="offer"></sd-offer>
-        </ion-list>
-        <ion-list>
-            <ion-item class="item-divider">
-                3 o'clock
-            </ion-item>
+            <sd-offer ng-repeat="offer in offers" offer="offer" place-offer="placeOffer( offer )" ></sd-offer>
         </ion-list>
     </ion-content>
     <ion-footer-bar class="bar-stable">

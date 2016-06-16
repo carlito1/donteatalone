@@ -258,7 +258,10 @@ angular.module('sentdevs.controllers.offersCounterController', [])
 .controller('OffersCounterController', ['$scope', 'offersService', function ($scope, offersService) {
         $scope.counter = 0;
     
+
         offersService.getUnresolvedOffersCount().then(function(coutner){
+
+
         $scope.counter = coutner;
     });
 }]);
@@ -272,13 +275,34 @@ angular.module('sentdevs.controllers.peopleController', [])
 
 }]);
 angular.module('sentdevs.controllers.trendingController', [])
-.controller('TrendingController', ['$scope', 'offersService', function ($scope, offersService) {
+.controller('TrendingController',
+         ['$scope',
+          'offersService',
+          '$ionicLoading',
+          function ($scope, offersService, $ionicLoading) {
     $scope.offers = [];
-    offersService.getAll().then(function (offers) {
-        $scope.offers = offers;
-    }, function () {
-        //Error happended. Notify user
-    });
+    getOffers();
+    
+    function getOffers() {
+        $ionicLoading.show( {
+            template: '<ion-spinner></ion-spinner>'
+        } );
+        return offersService.getAll()
+        .then(function (offers) {
+            $scope.offers = offers;
+        }, function () {
+            //Error happended. Notify user
+        })
+        .finally( function() {
+            $ionicLoading.hide();
+        } );
+    }
+    $scope.placeOffer = function( offer ) {
+        offersService.signForOffer( offer )
+        .then( function(){ 
+            return getOffers();
+        });
+    };
 }]);
 angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
     'sentdevs.controllers.trendingController',
@@ -298,7 +322,8 @@ angular.module('sentdevs.directives.offerDirective', [])
             return './templates/directives/offer.html';
         },
         scope: {
-            offerInfo: '=offer'
+            offerInfo: '=offer',
+            placeOffer: '&'
         },
         restrict: 'E',  
         controller: ['$scope', 'offersService', function ($scope, offersService) {
@@ -309,21 +334,14 @@ angular.module('sentdevs.directives.offerDirective', [])
                     $scope.range.push('');
                 }
             }
-            function notified() {
+            offersService.subscribe( $scope.offerInfo, function( offer ) {
+                $scope.offerInfo = offer;
                 init();
-                //$scope.apply();
-            }
-            
-            init();
+            } );
 
-            offersService.subscribe($scope.offerInfo, notified);
+            init();
             $scope.toggleVisible = function toggleVisible() {
                 $scope.visible = !$scope.visible;
-            };
-            $scope.placeOffer = function placeOffer($event) {
-                $event.stopPropagation(); // needed so that event don't bubble to toggleVisible
-                offersService.signForOffer($scope.offerInfo);
-                
             };
         }]
     };  
@@ -491,16 +509,8 @@ angular.module('sentdevs.services.dataService', [])
         * Adds new eater to offer with given id
         * @param {offer} Offer
         */
-        updateOffer: function updateOffer(offer) {
-
-            //simulate sockets.
-            var eater = offer.eaters.slice( -1 ).pop();
-            this.onEaterAdded(offer.id, eater);
-            var deferred = $q.defer();
-
-            deferred.resolve();
-
-            return deferred.promise;
+        updateOffer: function updateOffer( offer ) {
+            return $q.all();
         },
         /**
         * Get all offers
@@ -535,15 +545,6 @@ angular.module('sentdevs.services.dataService', [])
         **/
         subscribeToOffersChanges: function subscribeToOffersChanges(id, fnCallback){
             offersChangesSubscribers[id] = fnCallback;
-        },
-        /**
-        * Listens for changes on server and notify offer subsriber
-        **/
-        onEaterAdded: function onEaterAdded(offerId, eater) {
-            if (offersChangesSubscribers.hasOwnProperty(offerId) && offers[offerId]) {
-                // Is save to call callback function
-                offersChangesSubscribers[offerId](offerId, eater);
-            }
         }
     }
 }]);
@@ -564,41 +565,33 @@ angular.module('sentdevs.services.offersService', [])
     * Retrive user and add it to offer eaters. Update offer
     * @returns {promise} 
     **/
-    function signForOffer(offer) {
+    function signForOffer( offer ) {
         if (offer.eaters.length < offer.numOfPersons) {
-            userService.getUser().then(function(user){
-                console.log(user, offer);
-                offer.eaters.push(user);
-                notifyView(offer.id);
-            });
-            
-        }
-        return dataService.updateOffer(offer);
-    }
-    /**
-    * Listens for offers changed. If offer changed assign new eater to view.
-    **/
-    function offersChangeListener(offerId, eater) { 
-        if (subsribers.hasOwnProperty(offerId) && subsribers[offerId]) {
-            var originalOffer = subsribers[offerId];
-            if(originalOffer.offer.eaters.length === 0) {
-                originalOffer.offer.eaters.push(eater);
-            } else {
-                var bShouldPush = false;
-                angular.forEach(originalOffer.offer.eaters, function (orgEater) {
-                    if (!angular.equals(eater, orgEater)) {
-                        bShouldPush = true;
+            return userService.getUser()
+            .then(function(user) {
+                var bShouldPush = true;
+                angular.forEach( offer.eaters, function( oEater ) {
+                    if( angular.equals( user, oEater ) ) {
+                        bShouldPush = false;
                     }
-                });
-                originalOffer.offer.eaters.push(eater);
-            }
+                } );
+                if( bShouldPush ) {
+                    offer.eaters.push( user );
+                    return dataService.updateOffer(offer)
+                    .then( function() {
+                        notifyView( offer );
+                    } );
+                } else {
+                    return $q.all();
+                }
+            });            
         }
+        return $q.all();
     }
-    function notifyView(id) {
-        subsribers[id].callback();
+    function notifyView( offer ) {
+        subsribers[offer.id].callback( offer );
     }
     function subscribe(offer, fnCallback) {
-        dataService.subscribeToOffersChanges(offer.id, offersChangeListener);
         subsribers[offer.id] = { 
             callback: fnCallback,
             offer: offer
@@ -698,14 +691,14 @@ angular.module('sentdevs.services.offersService', [])
 
     return {
         signForOffer: signForOffer,
-        subscribe: subscribe,
         getAll: getOffers,
         getUnresolvedOffersCount : getUnresolvedOffersCount,
         createOffer: createOffer,
         getmyOffers: getMyOffers,
         //acceptOffer: acceptOffer,
         getmypastoffers: getMyPastOffers
-        };
+        subscribe: subscribe
+    };
 }]);
 angular.module('sentdevs.services.peopleService', [])
 .factory('peopleService', ['dataService', function (dataService) {

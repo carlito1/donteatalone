@@ -93,16 +93,8 @@
         * Adds new eater to offer with given id
         * @param {offer} Offer
         */
-        updateOffer: function updateOffer(offer) {
-
-            //simulate sockets.
-            var eater = offer.eaters.slice( -1 ).pop();
-            this.onEaterAdded(offer.id, eater);
-            var deferred = $q.defer();
-
-            deferred.resolve();
-
-            return deferred.promise;
+        updateOffer: function updateOffer( offer ) {
+            return $q.all();
         },
         /**
         * Get all offers
@@ -137,15 +129,6 @@
         **/
         subscribeToOffersChanges: function subscribeToOffersChanges(id, fnCallback){
             offersChangesSubscribers[id] = fnCallback;
-        },
-        /**
-        * Listens for changes on server and notify offer subsriber
-        **/
-        onEaterAdded: function onEaterAdded(offerId, eater) {
-            if (offersChangesSubscribers.hasOwnProperty(offerId) && offers[offerId]) {
-                // Is save to call callback function
-                offersChangesSubscribers[offerId](offerId, eater);
-            }
         }
     }
 }]);
