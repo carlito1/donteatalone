@@ -13,10 +13,11 @@ angular.module('sentdevs.controllers.addOffer', [])
     $scope.offer.eaters = [];
     
     $scope.createOffer = function() {
-        console.log($scope.offer);
-        offersService.createOffer($scope.offer).then(function(bStatus) {
+        $scope.offer.time = $scope.offer.setTime.getTime();
+        offersService.createOffer($scope.offer)
+        .then(function() {
             $state.go('loged.tab.trending');  
-        });
+        } );
     };
 }]);
 /// <reference path="trendingController.js" />
@@ -195,23 +196,9 @@ angular.module('sentdevs.controllers.trendingController', [])
     getOffers();
     
     function getOffers() {
-        $ionicLoading.show( {
-            template: '<ion-spinner></ion-spinner>'
-        } );
-        return offersService.getAll()
-        .then(function (offers) {
-            $scope.offers = offers;
-        }, function () {
-            //Error happended. Notify user
-        })
-        .finally( function() {
-            $ionicLoading.hide();
-        } );
+        $scope.offers = offersService.getAll();
     }
     $scope.placeOffer = function( offer ) {
-        offersService.signForOffer( offer )
-        .then( function(){ 
-            return getOffers();
-        });
+        offersService.signForOffer( offer );
     };
 }]);
