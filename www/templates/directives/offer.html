@@ -10,7 +10,7 @@
             <img ng-src="{{eater.avatar}}" alt="avatar" />
         </span>
         <span class="place-offer">
-            <button class="button button-light" ng-click="placeOffer($event)"><i class="icon ion-ios-plus-empty"></i></button>
+            <button class="button button-light" ng-click="$event.stopPropagation(); placeOffer( { offer: offerInfo } )"><i class="icon ion-ios-plus-empty"></i></button>
         </span>
     </div>
 </ion-item>

@@ -15,41 +15,33 @@
     * Retrive user and add it to offer eaters. Update offer
     * @returns {promise} 
     **/
-    function signForOffer(offer) {
+    function signForOffer( offer ) {
         if (offer.eaters.length < offer.numOfPersons) {
-            userService.getUser().then(function(user){
-                console.log(user, offer);
-                offer.eaters.push(user);
-                notifyView(offer.id);
-            });
-            
-        }
-        return dataService.updateOffer(offer);
-    }
-    /**
-    * Listens for offers changed. If offer changed assign new eater to view.
-    **/
-    function offersChangeListener(offerId, eater) { 
-        if (subsribers.hasOwnProperty(offerId) && subsribers[offerId]) {
-            var originalOffer = subsribers[offerId];
-            if(originalOffer.offer.eaters.length === 0) {
-                originalOffer.offer.eaters.push(eater);
-            } else {
-                var bShouldPush = false;
-                angular.forEach(originalOffer.offer.eaters, function (orgEater) {
-                    if (!angular.equals(eater, orgEater)) {
-                        bShouldPush = true;
+            return userService.getUser()
+            .then(function(user) {
+                var bShouldPush = true;
+                angular.forEach( offer.eaters, function( oEater ) {
+                    if( angular.equals( user, oEater ) ) {
+                        bShouldPush = false;
                     }
-                });
-                originalOffer.offer.eaters.push(eater);
-            }
+                } );
+                if( bShouldPush ) {
+                    offer.eaters.push( user );
+                    return dataService.updateOffer(offer)
+                    .then( function() {
+                        notifyView( offer );
+                    } );
+                } else {
+                    return $q.all();
+                }
+            });            
         }
+        return $q.all();
     }
-    function notifyView(id) {
-        subsribers[id].callback();
+    function notifyView( offer ) {
+        subsribers[offer.id].callback( offer );
     }
     function subscribe(offer, fnCallback) {
-        dataService.subscribeToOffersChanges(offer.id, offersChangeListener);
         subsribers[offer.id] = { 
             callback: fnCallback,
             offer: offer
@@ -67,9 +59,9 @@
     }
     return {
         signForOffer: signForOffer,
-        subscribe: subscribe,
         getAll: getOffers,
         getUnresolvedOffersCount : getUnresolvedOffersCount,
-        createOffer: createOffer
+        createOffer: createOffer,
+        subscribe: subscribe
     };
 }]);

@@ -129,7 +129,8 @@ angular.module('sentdevs.controllers.offersCounterController', [])
 .controller('OffersCounterController', ['$scope', 'offersService', function ($scope, offersService) {
     $scope.counter = 0;
     
-    offersService.getUnresolvedOffersCount().then(function(coutner){
+    offersService.getUnresolvedOffersCount()
+    .then(function(coutner){
         $scope.counter = coutner;
     });
 }]);
@@ -141,11 +142,32 @@ angular.module('sentdevs.controllers.peopleController', [])
 
 }]);
 angular.module('sentdevs.controllers.trendingController', [])
-.controller('TrendingController', ['$scope', 'offersService', function ($scope, offersService) {
+.controller('TrendingController',
+         ['$scope',
+          'offersService',
+          '$ionicLoading',
+          function ($scope, offersService, $ionicLoading) {
     $scope.offers = [];
-    offersService.getAll().then(function (offers) {
-        $scope.offers = offers;
-    }, function () {
-        //Error happended. Notify user
-    });
+    getOffers();
+    
+    function getOffers() {
+        $ionicLoading.show( {
+            template: '<ion-spinner></ion-spinner>'
+        } );
+        return offersService.getAll()
+        .then(function (offers) {
+            $scope.offers = offers;
+        }, function () {
+            //Error happended. Notify user
+        })
+        .finally( function() {
+            $ionicLoading.hide();
+        } );
+    }
+    $scope.placeOffer = function( offer ) {
+        offersService.signForOffer( offer )
+        .then( function(){ 
+            return getOffers();
+        });
+    };
 }]);
