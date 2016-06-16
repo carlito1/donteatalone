@@ -7,7 +7,8 @@ angular.module('sentdevs.directives.offerDirective', [])
             return './templates/directives/offer.html';
         },
         scope: {
-            offerInfo: '=offer'
+            offerInfo: '=offer',
+            placeOffer: '&'
         },
         restrict: 'E',  
         controller: ['$scope', 'offersService', function ($scope, offersService) {
@@ -18,21 +19,14 @@ angular.module('sentdevs.directives.offerDirective', [])
                     $scope.range.push('');
                 }
             }
-            function notified() {
+            offersService.subscribe( $scope.offerInfo, function( offer ) {
+                $scope.offerInfo = offer;
                 init();
-                //$scope.apply();
-            }
-            
-            init();
+            } );
 
-            offersService.subscribe($scope.offerInfo, notified);
+            init();
             $scope.toggleVisible = function toggleVisible() {
                 $scope.visible = !$scope.visible;
-            };
-            $scope.placeOffer = function placeOffer($event) {
-                $event.stopPropagation(); // needed so that event don't bubble to toggleVisible
-                offersService.signForOffer($scope.offerInfo);
-                
             };
         }]
     };  
