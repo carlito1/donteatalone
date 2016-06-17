@@ -188,7 +188,6 @@
 
             var editPromise = principal.getIdentify()
             .then( function( identity ){
-                console.log( 'Edit', 'waitingList/' + offerModel.id + '/' + identity.id );
                 return fb.ref( 'waitingList/' + offerModel.id + '/' + identity.id )
                 .once( 'value' )
                 .then( function ( waitSnap ) {
@@ -208,28 +207,70 @@
                 return offerModel;
             } );
         },
-        /**
-        * Add new offer
-        * @param {offer} Offer
-        **/
-        addOffer: function(offer) {
-            var deferred = $q.defer();
-            offers.push(offer);
-            deferred.resolve();
-            return deferred.promise;
+
+        getMyOffer: function () {
+            var self = this;
+            var fb = firebase.database();
+            return principal.getIdentify()
+            .then( function ( identity ) {
+                var ref = fb.ref( 'offers/' )
+                return ref.orderByChild( 'creator' )
+                .equalTo( identity.id )
+                .limitToLast( 1 )
+                .once( 'value' );
+            } )
+            .then( function ( offersSnaps ) {
+                var timestamp;
+                var lastOffer;
+                offersSnaps.forEach( function ( offerSnap ) {
+                    console.log( offerSnap.child( 'location' ).val() )
+                    if( !timestamp || timestamp > offerSnap.child( 'timestamp' ).val() ) {
+                        timestamp = offerSnap.child( 'timestamp' ).val();
+                        lastOffer = offerSnap;
+                    }
+                } );
+
+                return lastOffer;
+            } )
+            .then( function ( snapshot ) {
+                    return self.buildOffer( snapshot );
+                } )
+            .then( function ( offerModel ) {
+                return self.buildEatersWaitList( offerModel.id )
+                .then( function ( aEatersWaitList ) {
+                    offerModel.eatersWaitList = aEatersWaitList;
+                    return offerModel;
+                } );
+            } );
         },
-        /**
-         * subscribe to new offers notification 
-         * @param {function} callback function 
-         */
-        subscribeToOfferAdded: function(fnCallback) {
-            offerAddedSubscribers.push(fnCallback);
+
+        buildEatersWaitList: function( offerId ) {
+            var fb = firebase.database();
+            var self = this;
+            return fb.ref( 'waitingList/' + offerId ).once( 'value' )
+            .then( function ( potentialEaters ) {
+                var potentialEatersPromises = [];
+                potentialEaters.forEach( function ( eaterSnapshot ) {
+                    potentialEatersPromises.push( self.buildPerson( eaterSnapshot.key ) );
+                } );
+
+                return $q.all( potentialEatersPromises );
+            });
         },
-        /**
-        * Subscribe to offers changes
-        **/
-        subscribeToOffersChanges: function subscribeToOffersChanges(id, fnCallback){
-            offersChangesSubscribers[id] = fnCallback;
+
+        buildPerson: function( personId ) {
+            var fb = firebase.database();
+            return fb.ref( 'peoples/' + personId ).once( 'value' )
+            .then( function ( personSnap ) {
+                var personModel = {
+                    id: personSnap.key,
+                    name: personSnap.child( 'name' ).val(),
+                    avatar: personSnap.child( 'avatar' ).val(),
+                    email: personSnap.child( 'email' ).val()
+                }
+
+                return personModel;
+            } )
         }
     }
 }]);
