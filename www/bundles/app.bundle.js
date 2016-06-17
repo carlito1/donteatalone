@@ -696,7 +696,7 @@ angular.module('sentdevs.services.offersService', [])
         createOffer: createOffer,
         getmyOffers: getMyOffers,
         //acceptOffer: acceptOffer,
-        getmypastoffers: getMyPastOffers
+        getmypastoffers: getMyPastOffers,
         subscribe: subscribe
     };
 }]);
