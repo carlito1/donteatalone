@@ -242,10 +242,13 @@ angular.module('sentdevs.services.dataService', [])
 
             var editPromise = principal.getIdentify()
             .then( function( identity ){
-                return fb.ref( 'waitingList/' + offerModel.id + '/' + identity.id  )
+                console.log( 'Edit', 'waitingList/' + offerModel.id + '/' + identity.id );
+                return fb.ref( 'waitingList/' + offerModel.id + '/' + identity.id )
                 .once( 'value' )
                 .then( function ( waitSnap ) {
+                    console.log( 'waitSnap', waitSnap.key, waitSnap.val() );
                     if( waitSnap.exists() ) {
+                        console.log( 'cant edit' );
                         offerModel.canEdit = false;
                     }
                     return $q.when();
@@ -308,8 +311,8 @@ angular.module('sentdevs.services.offersService', [])
     }
 
     function requestMeal( userId, offerId ) {
-        firebase.database().ref( 'waitingList/' + offerId + '/' + userId )
-        .set( true )
+        return firebase.database().ref( 'waitingList/' + offerId + '/' + userId )
+        .set( true );
     }
     /**
     * Retrive user and add it to offer eaters. Update offer

@@ -22,8 +22,8 @@
     }
 
     function requestMeal( userId, offerId ) {
-        firebase.database().ref( 'waitingList/' + offerId + '/' + userId )
-        .set( true )
+        return firebase.database().ref( 'waitingList/' + offerId + '/' + userId )
+        .set( true );
     }
     /**
     * Retrive user and add it to offer eaters. Update offer

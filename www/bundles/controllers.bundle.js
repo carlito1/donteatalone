@@ -218,6 +218,7 @@ angular.module('sentdevs.controllers.trendingController', [])
         $scope.offers = offersService.getAll();
     }
     $scope.placeOffer = function( offer ) {
+        offer.canEdit = false;
         offersService.signForOffer( offer );
     };
 }]);

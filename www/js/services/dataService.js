@@ -188,10 +188,13 @@
 
             var editPromise = principal.getIdentify()
             .then( function( identity ){
-                return fb.ref( 'waitingList/' + offerModel.id + '/' + identity.id  )
+                console.log( 'Edit', 'waitingList/' + offerModel.id + '/' + identity.id );
+                return fb.ref( 'waitingList/' + offerModel.id + '/' + identity.id )
                 .once( 'value' )
                 .then( function ( waitSnap ) {
+                    console.log( 'waitSnap', waitSnap.key, waitSnap.val() );
                     if( waitSnap.exists() ) {
+                        console.log( 'cant edit' );
                         offerModel.canEdit = false;
                     }
                     return $q.when();
