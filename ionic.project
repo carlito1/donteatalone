@@ -1,4 +1,11 @@
 {
   "name": "donteatalone",
-  "app_id": "c0798c0d"
+  "app_id": "c0798c0d",
+  "browsers": [
+    {
+      "platform": "android",
+      "browser": "crosswalk",
+      "version": "12.41.296.5"
+    }
+  ]
 }

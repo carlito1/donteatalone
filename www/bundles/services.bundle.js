@@ -6,54 +6,77 @@ angular.module('sentdevs.services', ['sentdevs.services.dataService',
     'sentdevs.services.chatService'
 ]);
 angular.module('sentdevs.services.chatService', [])
-.factory('chatService', ['$q', '$log', function ($q, $log) {
-    var chats = [{
-        id: 0,
-        header: 'Samo bedaki in konji',
-        messages: [
-            {
-                id: 1,
-                sender: {
-                    avatar: 'http://media.comicbook.com/wp-content/uploads/2013/08/rambo-tv-series.jpg',
-                    name: 'John',
-                    surname: 'Rambo'
-                },
-                message: 'Kva je?!',
-                timestamp: '1465997742'
-            },
-            {
-                id: 2,
-                sender: {
-                    avatar: 'http://media.comicbook.com/wp-content/uploads/2013/08/rambo-tv-series.jpg',
-                    name: 'John',
-                    surname: 'Rambo'
-                },
-                message: 'Picke?!',
-                timestamp: '1465997743'
-            }
-        ]
-    }];
+.factory('chatService', ['$q', 'principal', function ($q, principal) {
+    var chats = [];
+    var messages = [];
+    function getSender( chatSnapshot ) {
+        var senderId = chatSnapshot.child( 'sender' ).val();
+        var fb = firebase.database();
+        return fb.ref( 'peoples/' + senderId ).once( 'value' )
+        .then( function ( personSnap ) {
+            var personModel = {
+                avatar: personSnap.child('avatar').val(),
+                name: personSnap.child('name').val(),
+                id: personSnap.key
+            };
+            return personModel;
+        } ) ;
+    }
     return {
-        getChats: function getChats() {
-            var deferred = $q.defer();
-            setTimeout( function () {
-                deferred.resolve( chats );
-            }, 500 )
-            return deferred.promise;
+        getChats: function getChats( fnCallback ) {
+  
+            var fb = firebase.database();
+            principal.getIdentify()
+            .then( function ( identity ) {
+                fb.ref( 'members/' ).orderByChild( identity.id )
+                .on( 'child_added', function( snapshot ){
+                    chats = [];
+                    fb.ref( 'chats/' + snapshot.key ).on( 'value', function( chatSnapshot ){
+                        var chatModel = {
+                            id: chatSnapshot.key,
+                            header: chatSnapshot.child('header').val()
+                        };
+                        getSender( chatSnapshot ).then( function( person ){
+                            chatModel.sender = person;
+                            chats.push( chatModel );
+                            fnCallback( chats );
+                        } );
+
+                    } );
+                } ); 
+            } )
         },
 
-        getMessages: function( id ) {
-            return $q.all( chats[id].messages );
+        getMessages: function( id, fnCallback ) {
+            messages = [];
+            var fb = firebase.database();
+            fb.ref( 'messages/' + id )
+            .on( 'child_added', function ( messageSnapshot ) {
+                console.log( 'Kličem pridobivanje spoorčila');
+                var messageModel = {
+                    message: messageSnapshot.child( 'message' ).val()
+                };
+                getSender( messageSnapshot )
+                .then( function( person ){
+                    messageModel.sender = person;
+                    messages.push( messageModel );
+                    fnCallback( messages );
+                } );
+            } );
         },
 
         sendMessage: function( id, message ) {
-            chats[id].messages.push( message );
-            return $q.all( message );
+            message.sender = message.sender.id;
+
+            return $q.when( firebase.database().ref( 'messages/' + id ).push( message ),
+                    firebase.database().ref( 'chats/' + id + '/header' ).set( message.message ),
+                    firebase.database().ref( 'chats/' + id + '/lastMessage' ).set( message.sender ) );
         }
     };
 }]);
 angular.module('sentdevs.services.dataService', [])
-.factory('dataService', ['$http', '$q', 'principal', function ($http, $q, principal) {
+.factory('dataService', ['$http', '$q', 'principal', '$ionicScrollDelegate',
+     function ($http, $q, principal, $ionicScrollDelegate) {
     var eStatus = {
         FRIEND : 0,
         WAITING : 1,
@@ -193,6 +216,7 @@ angular.module('sentdevs.services.dataService', [])
                     self.buildOffer( offerSnap )
                     .then( function ( offerModel ) {
                         offers.push( offerModel );
+                        $ionicScrollDelegate.resize();
                     } );
                 } );
             }
@@ -220,7 +244,7 @@ angular.module('sentdevs.services.dataService', [])
                 offerModel.owner = ownerModel;
             } )
 
-            var eatersPromise = fb.ref( 'eaters/' + offerModel.id ).once( 'value' )
+            var eatersPromise = fb.ref( 'offers/' + offerModel.id + '/eaters' ).once( 'value' )
             .then( function ( eaters ) {
                 var promises = [];
                 eaters.forEach( function ( eater ) {
@@ -228,8 +252,8 @@ angular.module('sentdevs.services.dataService', [])
                     .then( function ( personSnap ) {
                         var personModel = {
                             id: personSnap.key,
-                            avatar: personSnap.avatar.val(),
-                            name: personSnap.name.val()
+                            avatar: personSnap.child('avatar').val(),
+                            name: personSnap.child('name').val()
                         };
 
                         offerModel.eaters.push( personModel );
@@ -382,8 +406,8 @@ angular.module('sentdevs.services.offersService', [])
         subsribers[offer.id].callback( offer );
     }
     function subscribe(offer, fnCallback) {
-        firebase.database().ref( 'offersEaters/' + offer.id )
-        .on( 'value', function( offerSnap ) { //Listen on eater added
+        firebase.database().ref( 'offers/' + offer.id + '/eaters' )
+        .on( 'child_added', function( offerSnap ) { //Listen on eater added
             firebase.database().ref( 'offers/' + offer.id )
             .once( 'value' ).then( function( offerSnap ){
                 return dataService.buildOffer( offerSnap );            
@@ -405,42 +429,16 @@ angular.module('sentdevs.services.offersService', [])
     function getMyOffers() {
         return dataService.getMyOffer();
     }
-    function getMyPastOffers(user) {
-        var mypastoffers = [
-                {
-                id: 5,
-                name: 'Marko',
-                surname: 'Deželak',
-                avatar: 'https://scontent-vie1-1.xx.fbcdn.net/v/t1.0-1/c46.47.579.579/s160x160/47055_131205306931574_6086166_n.jpg?oh=23e003be242df1f3dac840c146f578e9&oe=57D2451D' ,
-                location: 'AlCapone',
-                time: '12:10',
-                numberofeaters: 2
-                },
-                {
-                id: 6,
-                name: 'Marko',
-                surname: 'Deželak',
-                avatar: 'https://scontent-vie1-1.xx.fbcdn.net/v/t1.0-1/c46.47.579.579/s160x160/47055_131205306931574_6086166_n.jpg?oh=23e003be242df1f3dac840c146f578e9&oe=57D2451D' ,
-                location: 'Pri Štajercu',
-                time: '14:30',
-                numberofeaters: 2
-                }];
-                
-                    
-            
-        var deferred = $q.defer();
-        deferred.resolve(mypastoffers);
-        return deferred.promise;
-    }
-    function createChat( offerId ) {
+    function createChat( offerId, id ) {
         var fb = firebase.database();
-        return fb.ref( 'offer/' + offerId ).once( 'value' )
+        return fb.ref( 'offers/' + offerId ).once( 'value' )
         .then( function ( offerSnap ) {
             var chatHeader = offerSnap.child( 'location' ).val();
             var chat = {
                 timestamp: Date.now(),
                 lastMessage: '',
-                title: chatHeader
+                title: chatHeader,
+                sender: id
             };
 
             return chat;
@@ -473,7 +471,7 @@ angular.module('sentdevs.services.offersService', [])
             if( chatSnap.exists() ) {
                 return fb.ref( 'members/' + offerId + '/' + id ).set( true );
             } else {
-                return $q.when( createChat( offerId ) , createMembers( offerId, id ) );
+                return $q.when( createChat( offerId, id ) , createMembers( offerId, id ) );
             }
         } );
     }
@@ -488,7 +486,6 @@ angular.module('sentdevs.services.offersService', [])
         getUnresolvedOffersCount : getUnresolvedOffersCount,
         createOffer: createOffer,
         getmyOffers: getMyOffers,
-        getmypastoffers: getMyPastOffers,
         subscribe: subscribe,
         acceptOffer: acceptOffer,
         declineOffer: declineOffer

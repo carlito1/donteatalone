@@ -2,8 +2,7 @@
 .controller('TrendingController',
          ['$scope',
           'offersService',
-          '$ionicLoading',
-          function ($scope, offersService, $ionicLoading) {
+          function ($scope, offersService) {
     $scope.offers = [];
     getOffers();
     

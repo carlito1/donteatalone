@@ -13,13 +13,7 @@ angular.module('sentdevs.controllers.chatsController', [])
         $ionicLoading.show( {
             template: '<ion-spinner></ion-spinner>'
         } );
-        chatService.getChats()
-        .then( function( aChats ) {
-            aChats.forEach( function (chat) {
-                var lastMessage = chat.messages.slice( -1 ).pop();
-                chat.avatar = lastMessage.sender.avatar;
-                chat.lastText = lastMessage.message;
-            } )
+        chatService.getChats( function( aChats ) {
             $scope.chats = aChats;
             return $ionicLoading.hide();
         } );

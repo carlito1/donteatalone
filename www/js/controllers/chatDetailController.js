@@ -6,10 +6,10 @@ angular.module('sentdevs.controllers.chatDetailController', [])
 
     init();
     getMessages();
-
-    // Live ?!
-    setInterval( getMessages, 2000 );
-
+    $scope.$on('$ionicView.enter', function() {
+        getMessages();
+    });
+    
     $scope.handleKeyDown = function( $event ) {
         if( $event.key === 'Enter' ) {
             $scope.sendMessage();
@@ -26,23 +26,18 @@ angular.module('sentdevs.controllers.chatDetailController', [])
                 sender: identity,
                 message: $scope.message
             };
-
             return chatService.sendMessage( $scope.chatId, message );
         } )
         .then( function() {
-            return getMessages();
-        } )
-        .then( function() {
+            $scope.loading = false;
             $scope.message = '';
-            $scope.sending = false;
-            $ionicScrollDelegate.$getByHandle( 'chatList' ).scrollBottom( true );
         } );
     };
     function getMessages() {
-        return chatService.getMessages( $scope.chatId )
-        .then( function( chat ) {
+        return chatService.getMessages( $scope.chatId, function( chat ) {
             $scope.chat = chat;
             $scope.loading = false;
+            $ionicScrollDelegate.$getByHandle( 'chatList' ).scrollBottom( true );
         } );
     }
     

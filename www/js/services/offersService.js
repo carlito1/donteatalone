@@ -52,8 +52,8 @@
         subsribers[offer.id].callback( offer );
     }
     function subscribe(offer, fnCallback) {
-        firebase.database().ref( 'offersEaters/' + offer.id )
-        .on( 'value', function( offerSnap ) { //Listen on eater added
+        firebase.database().ref( 'offers/' + offer.id + '/eaters' )
+        .on( 'child_added', function( offerSnap ) { //Listen on eater added
             firebase.database().ref( 'offers/' + offer.id )
             .once( 'value' ).then( function( offerSnap ){
                 return dataService.buildOffer( offerSnap );            
@@ -75,42 +75,16 @@
     function getMyOffers() {
         return dataService.getMyOffer();
     }
-    function getMyPastOffers(user) {
-        var mypastoffers = [
-                {
-                id: 5,
-                name: 'Marko',
-                surname: 'Deželak',
-                avatar: 'https://scontent-vie1-1.xx.fbcdn.net/v/t1.0-1/c46.47.579.579/s160x160/47055_131205306931574_6086166_n.jpg?oh=23e003be242df1f3dac840c146f578e9&oe=57D2451D' ,
-                location: 'AlCapone',
-                time: '12:10',
-                numberofeaters: 2
-                },
-                {
-                id: 6,
-                name: 'Marko',
-                surname: 'Deželak',
-                avatar: 'https://scontent-vie1-1.xx.fbcdn.net/v/t1.0-1/c46.47.579.579/s160x160/47055_131205306931574_6086166_n.jpg?oh=23e003be242df1f3dac840c146f578e9&oe=57D2451D' ,
-                location: 'Pri Štajercu',
-                time: '14:30',
-                numberofeaters: 2
-                }];
-                
-                    
-            
-        var deferred = $q.defer();
-        deferred.resolve(mypastoffers);
-        return deferred.promise;
-    }
-    function createChat( offerId ) {
+    function createChat( offerId, id ) {
         var fb = firebase.database();
-        return fb.ref( 'offer/' + offerId ).once( 'value' )
+        return fb.ref( 'offers/' + offerId ).once( 'value' )
         .then( function ( offerSnap ) {
             var chatHeader = offerSnap.child( 'location' ).val();
             var chat = {
                 timestamp: Date.now(),
                 lastMessage: '',
-                title: chatHeader
+                title: chatHeader,
+                sender: id
             };
 
             return chat;
@@ -143,7 +117,7 @@
             if( chatSnap.exists() ) {
                 return fb.ref( 'members/' + offerId + '/' + id ).set( true );
             } else {
-                return $q.when( createChat( offerId ) , createMembers( offerId, id ) );
+                return $q.when( createChat( offerId, id ) , createMembers( offerId, id ) );
             }
         } );
     }
@@ -158,7 +132,6 @@
         getUnresolvedOffersCount : getUnresolvedOffersCount,
         createOffer: createOffer,
         getmyOffers: getMyOffers,
-        getmypastoffers: getMyPastOffers,
         subscribe: subscribe,
         acceptOffer: acceptOffer,
         declineOffer: declineOffer

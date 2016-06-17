@@ -18,18 +18,8 @@ angular.module('sentdevs.controllers.offersController', [])
                 return true;
             });
         };
-        var getAllOffers = function () {
-            return offersService.getmypastoffers()
-            .then(function (pastoffer) {
-                $scope.mypastoffers = pastoffer;
-                return true;
-            });
-        };
 
-        getAllOffers()
-        .then( function() {
-            return getMyOffers();
-        } );
+        getMyOffers();
 
         $scope.declineOffer = function (id) {
             showLoader();

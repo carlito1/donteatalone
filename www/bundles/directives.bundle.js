@@ -11,7 +11,7 @@ angular.module('sentdevs.directives.offerDirective', [])
             placeOffer: '&'
         },
         restrict: 'E',  
-        controller: ['$scope', 'offersService', function ($scope, offersService) {
+        controller: ['$scope', 'offersService', '$ionicScrollDelegate', function ($scope, offersService, $ionicScrollDelegate) {
             $scope.visible = false;
             function init() {
                 $scope.range = [];
@@ -27,6 +27,7 @@ angular.module('sentdevs.directives.offerDirective', [])
             init();
             $scope.toggleVisible = function toggleVisible() {
                 $scope.visible = !$scope.visible;
+                $ionicScrollDelegate.resize();
             };
         }]
     };  

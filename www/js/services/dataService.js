@@ -1,5 +1,6 @@
 ﻿angular.module('sentdevs.services.dataService', [])
-.factory('dataService', ['$http', '$q', 'principal', function ($http, $q, principal) {
+.factory('dataService', ['$http', '$q', 'principal', '$ionicScrollDelegate',
+     function ($http, $q, principal, $ionicScrollDelegate) {
     var eStatus = {
         FRIEND : 0,
         WAITING : 1,
@@ -139,6 +140,7 @@
                     self.buildOffer( offerSnap )
                     .then( function ( offerModel ) {
                         offers.push( offerModel );
+                        $ionicScrollDelegate.resize();
                     } );
                 } );
             }
@@ -166,7 +168,7 @@
                 offerModel.owner = ownerModel;
             } )
 
-            var eatersPromise = fb.ref( 'eaters/' + offerModel.id ).once( 'value' )
+            var eatersPromise = fb.ref( 'offers/' + offerModel.id + '/eaters' ).once( 'value' )
             .then( function ( eaters ) {
                 var promises = [];
                 eaters.forEach( function ( eater ) {
@@ -174,8 +176,8 @@
                     .then( function ( personSnap ) {
                         var personModel = {
                             id: personSnap.key,
-                            avatar: personSnap.avatar.val(),
-                            name: personSnap.name.val()
+                            avatar: personSnap.child('avatar').val(),
+                            name: personSnap.child('name').val()
                         };
 
                         offerModel.eaters.push( personModel );

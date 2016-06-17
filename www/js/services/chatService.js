@@ -1,47 +1,69 @@
 ﻿angular.module('sentdevs.services.chatService', [])
-.factory('chatService', ['$q', '$log', function ($q, $log) {
-    var chats = [{
-        id: 0,
-        header: 'Samo bedaki in konji',
-        messages: [
-            {
-                id: 1,
-                sender: {
-                    avatar: 'http://media.comicbook.com/wp-content/uploads/2013/08/rambo-tv-series.jpg',
-                    name: 'John',
-                    surname: 'Rambo'
-                },
-                message: 'Kva je?!',
-                timestamp: '1465997742'
-            },
-            {
-                id: 2,
-                sender: {
-                    avatar: 'http://media.comicbook.com/wp-content/uploads/2013/08/rambo-tv-series.jpg',
-                    name: 'John',
-                    surname: 'Rambo'
-                },
-                message: 'Picke?!',
-                timestamp: '1465997743'
-            }
-        ]
-    }];
+.factory('chatService', ['$q', 'principal', function ($q, principal) {
+    var chats = [];
+    var messages = [];
+    function getSender( chatSnapshot ) {
+        var senderId = chatSnapshot.child( 'sender' ).val();
+        var fb = firebase.database();
+        return fb.ref( 'peoples/' + senderId ).once( 'value' )
+        .then( function ( personSnap ) {
+            var personModel = {
+                avatar: personSnap.child('avatar').val(),
+                name: personSnap.child('name').val(),
+                id: personSnap.key
+            };
+            return personModel;
+        } ) ;
+    }
     return {
-        getChats: function getChats() {
-            var deferred = $q.defer();
-            setTimeout( function () {
-                deferred.resolve( chats );
-            }, 500 )
-            return deferred.promise;
+        getChats: function getChats( fnCallback ) {
+  
+            var fb = firebase.database();
+            principal.getIdentify()
+            .then( function ( identity ) {
+                fb.ref( 'members/' ).orderByChild( identity.id )
+                .on( 'child_added', function( snapshot ){
+                    chats = [];
+                    fb.ref( 'chats/' + snapshot.key ).on( 'value', function( chatSnapshot ){
+                        var chatModel = {
+                            id: chatSnapshot.key,
+                            header: chatSnapshot.child('header').val()
+                        };
+                        getSender( chatSnapshot ).then( function( person ){
+                            chatModel.sender = person;
+                            chats.push( chatModel );
+                            fnCallback( chats );
+                        } );
+
+                    } );
+                } ); 
+            } )
         },
 
-        getMessages: function( id ) {
-            return $q.all( chats[id].messages );
+        getMessages: function( id, fnCallback ) {
+            messages = [];
+            var fb = firebase.database();
+            fb.ref( 'messages/' + id )
+            .on( 'child_added', function ( messageSnapshot ) {
+                console.log( 'Kličem pridobivanje spoorčila');
+                var messageModel = {
+                    message: messageSnapshot.child( 'message' ).val()
+                };
+                getSender( messageSnapshot )
+                .then( function( person ){
+                    messageModel.sender = person;
+                    messages.push( messageModel );
+                    fnCallback( messages );
+                } );
+            } );
         },
 
         sendMessage: function( id, message ) {
-            chats[id].messages.push( message );
-            return $q.all( message );
+            message.sender = message.sender.id;
+
+            return $q.when( firebase.database().ref( 'messages/' + id ).push( message ),
+                    firebase.database().ref( 'chats/' + id + '/header' ).set( message.message ),
+                    firebase.database().ref( 'chats/' + id + '/lastMessage' ).set( message.sender ) );
         }
     };
 }]);

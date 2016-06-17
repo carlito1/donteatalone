@@ -6,9 +6,9 @@
                       type="item-text-wrap" 
                       href="#/loged/chats/details/{{chat.id}}"
                       ng-show="chats">
-                <img ng-src="{{chat.avatar}}">
+                <img ng-src="{{chat.sender.avatar}}">
                 <h2>{{chat.header}}</h2>
-                <p>{{chat.lastText}}</p>
+                <p>{{chat.lastMessage}}</p>
                 <i class="icon ion-chevron-right icon-accessory"></i>
 
                 <ion-option-button class="button-assertive" ng-click="remove(chat)">
