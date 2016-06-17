@@ -119,16 +119,6 @@ angular.module('sentdevs', ['ionic', 'sentdevs.controllers', 'sentdevs.services'
 
 }]);
 
-angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
-    'sentdevs.controllers.trendingController',
-    'sentdevs.controllers.peopleController',
-    'sentdevs.controllers.navigationBarController',
-    'sentdevs.controllers.loginController',
-    'sentdevs.controllers.chatDetailController',
-    'sentdevs.controllers.offersCounterController',
-    'sentdevs.controllers.addOffer',
-    'sentdevs.controllers.offersController'
-]);
 angular.module('sentdevs.controllers.addOffer', [])
 .controller('AddOfferController', ['$scope', '$state', 'offersService',  function($scope, $state, offersService){
     $scope.offer = {};
@@ -342,7 +332,16 @@ angular.module('sentdevs.controllers.trendingController', [])
         offersService.signForOffer( offer );
     };
 }]);
-angular.module('sentdevs.directives', ['sentdevs.directives.offerDirective']);
+angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
+    'sentdevs.controllers.trendingController',
+    'sentdevs.controllers.peopleController',
+    'sentdevs.controllers.navigationBarController',
+    'sentdevs.controllers.loginController',
+    'sentdevs.controllers.chatDetailController',
+    'sentdevs.controllers.offersCounterController',
+    'sentdevs.controllers.addOffer',
+    'sentdevs.controllers.offersController'
+]);
 angular.module('sentdevs.directives.offerDirective', [])
 .directive('sdOffer', [function () {
     return {
@@ -375,7 +374,7 @@ angular.module('sentdevs.directives.offerDirective', [])
         }]
     };  
 }]); 
-angular.module('sentdevs.filters', ['sentdevs.filters.peopleFilter']);
+angular.module('sentdevs.directives', ['sentdevs.directives.offerDirective']);
 angular.module('sentdevs.filters.peopleFilter', [])
 .filter('people', function () {
     return function (originalArray, query) {
@@ -395,13 +394,7 @@ angular.module('sentdevs.filters.peopleFilter', [])
     };
 });
 
-angular.module('sentdevs.services', ['sentdevs.services.dataService',
-    'sentdevs.services.offersService',
-    'sentdevs.services.peopleService',
-    'sentdevs.services.userService',
-    'sentdevs.services.principalService',
-    'sentdevs.services.chatService'
-]);
+angular.module('sentdevs.filters', ['sentdevs.filters.peopleFilter']);
 angular.module('sentdevs.services.chatService', [])
 .factory('chatService', ['$q', '$log', function ($q, $log) {
     var chats = [{
@@ -1054,3 +1047,10 @@ angular.module('sentdevs.services.userService', [])
         }
     };
 }]);
+angular.module('sentdevs.services', ['sentdevs.services.dataService',
+    'sentdevs.services.offersService',
+    'sentdevs.services.peopleService',
+    'sentdevs.services.userService',
+    'sentdevs.services.principalService',
+    'sentdevs.services.chatService'
+]);
