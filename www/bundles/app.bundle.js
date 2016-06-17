@@ -696,28 +696,29 @@ angular.module('sentdevs.services.offersService', [])
             return firebase.database().ref( 'offers/' + key ).set( offer );
         } );
     }
+
+    function requestMeal( userId, offerId ) {
+        firebase.database().ref( 'waitingList/' + offerId + '/' + userId )
+        .set( true )
+    }
     /**
     * Retrive user and add it to offer eaters. Update offer
     * @returns {promise} 
     **/
     function signForOffer( offer ) {
         if (offer.eaters.length < offer.numOfPersons) {
-            return userService.getUser()
-            .then(function(user) {
+            return principal.getIdentify()
+            .then( function( identity ) {
                 var bShouldPush = true;
                 angular.forEach( offer.eaters, function( oEater ) {
-                    if( angular.equals( user, oEater ) ) {
+                    if( angular.equals( identity.id, oEater.id ) ) {
                         bShouldPush = false;
                     }
                 } );
                 if( bShouldPush ) {
-                    offer.eaters.push( user );
-                    return dataService.updateOffer(offer)
-                    .then( function() {
-                        notifyView( offer );
-                    } );
+                    requestMeal( identity.id, offer.id );
                 } else {
-                    return $q.all();
+                    return $q.when();
                 }
             });            
         }
