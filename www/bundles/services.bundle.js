@@ -1,10 +1,3 @@
-angular.module('sentdevs.services', ['sentdevs.services.dataService',
-    'sentdevs.services.offersService',
-    'sentdevs.services.peopleService',
-    'sentdevs.services.userService',
-    'sentdevs.services.principalService',
-    'sentdevs.services.chatService'
-]);
 angular.module('sentdevs.services.chatService', [])
 .factory('chatService', ['$q', 'principal', function ($q, principal) {
     var chats = [];
@@ -698,3 +691,10 @@ angular.module('sentdevs.services.userService', [])
         }
     };
 }]);
+angular.module('sentdevs.services', ['sentdevs.services.dataService',
+    'sentdevs.services.offersService',
+    'sentdevs.services.peopleService',
+    'sentdevs.services.userService',
+    'sentdevs.services.principalService',
+    'sentdevs.services.chatService'
+]);

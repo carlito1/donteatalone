@@ -78,6 +78,23 @@ angular.module('sentdevs', ['ionic', 'sentdevs.controllers', 'sentdevs.services'
                 }
             }
         } )
+        
+        // setup about view
+        
+         .state('loged.about', {
+            url: '/about',
+            abstract: true,
+            template: '<ion-nav-view name="about"></ion-nav-view>'
+        })
+        .state( 'loged.about.mine', {
+            url: '/',
+            views: {
+                'about': {
+                    templateUrl: 'templates/views/about-view.html'
+
+                }
+            }
+        } )
 
       .state('loged.tab', {
           url: "/tab",

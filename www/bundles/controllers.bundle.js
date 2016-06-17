@@ -1,13 +1,3 @@
-angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
-    'sentdevs.controllers.trendingController',
-    'sentdevs.controllers.peopleController',
-    'sentdevs.controllers.navigationBarController',
-    'sentdevs.controllers.loginController',
-    'sentdevs.controllers.chatDetailController',
-    'sentdevs.controllers.offersCounterController',
-    'sentdevs.controllers.addOffer',
-    'sentdevs.controllers.offersController'
-]);
 angular.module('sentdevs.controllers.addOffer', [])
 .controller('AddOfferController', ['$scope', '$state', 'offersService',  function($scope, $state, offersService){
     $scope.offer = {};
@@ -241,3 +231,13 @@ angular.module('sentdevs.controllers.trendingController', [])
         offersService.signForOffer( offer );
     };
 }]);
+angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
+    'sentdevs.controllers.trendingController',
+    'sentdevs.controllers.peopleController',
+    'sentdevs.controllers.navigationBarController',
+    'sentdevs.controllers.loginController',
+    'sentdevs.controllers.chatDetailController',
+    'sentdevs.controllers.offersCounterController',
+    'sentdevs.controllers.addOffer',
+    'sentdevs.controllers.offersController'
+]);
