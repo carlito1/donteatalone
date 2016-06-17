@@ -557,6 +557,8 @@ angular.module('sentdevs.services.dataService', [])
                 peoplesSnapshot.forEach( function( personSnapshot ){
                     peopleList.push( personSnapshot.key );
                 } );
+
+                return peopleList;
             });
         },
         /**
@@ -734,7 +736,7 @@ angular.module('sentdevs.services.offersService', [])
     function subscribe(offer, fnCallback) {
         firebase.database().ref( 'offersEaters/' + offer.id )
         .on( 'value', function( offerSnap ) { //Listen on eater added
-            firebase.database.ref( 'offers/' + offer.id )
+            firebase.database().ref( 'offers/' + offer.id )
             .once( 'value' ).then( function( offerSnap ){
                 return dataService.buildOffer( offerSnap );            
             })
@@ -858,17 +860,22 @@ angular.module('sentdevs.services.peopleService', [])
             var peopleFilter = function( peoples ) {
                 var lists = [ 'pending', 'waiting', 'friends' ];
                 var promises = [];
-                lists.forEach( function ( list ) {
-                    promises.push( dataService.getOnce( list )
-                    .then( function( people ) {
-                        peoples = peoples.filter( function ( item ) {
-                            return people.indexOf( item.id ) === -1;
-                        } );
-                    } ) );
-                } );
-
-                $q.all( promises )
+                var filter = function( people ) {
+                    peoples = peoples.filter( function ( item ) {
+                        return people.indexOf( item.id ) === -1;
+                    } );
+                    return true;
+                };
+                dataService.getOnce( 'pending' )
+                .then( filter )
                 .then( function() {
+                    return dataService.getOnce( 'waiting' )
+                    .then( filter );
+                })
+                .then (function () {
+                    return dataService.getOnce( 'friends' ).then( filter );
+                } )
+                .then( function () {
                     fnCallback( peoples );
                 } );
             }

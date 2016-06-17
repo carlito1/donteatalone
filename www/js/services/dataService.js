@@ -106,6 +106,8 @@
                 peoplesSnapshot.forEach( function( personSnapshot ){
                     peopleList.push( personSnapshot.key );
                 } );
+
+                return peopleList;
             });
         },
         /**

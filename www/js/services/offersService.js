@@ -53,7 +53,7 @@
     function subscribe(offer, fnCallback) {
         firebase.database().ref( 'offersEaters/' + offer.id )
         .on( 'value', function( offerSnap ) { //Listen on eater added
-            firebase.database.ref( 'offers/' + offer.id )
+            firebase.database().ref( 'offers/' + offer.id )
             .once( 'value' ).then( function( offerSnap ){
                 return dataService.buildOffer( offerSnap );            
             })

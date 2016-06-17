@@ -6,8 +6,7 @@
                 <input type="text" placeholder="Search" ng-model="searchQuery">
             </label>
         </div>
-        <ion-list
-                  show-delete="shouldShowDelete">
+        <ion-list>
             <ion-item class="item-divider">
                 Friends
             </ion-item>
@@ -16,7 +15,16 @@
                 <h2 class="item-text-center item-text-wrap">{{person.name}}</h2>
             </ion-item>
         </ion-list>
-        <ion-list>
+        <ion-list ng-if="pending.length !== 0">
+            <ion-item class="item-divider">
+                Waiting
+            </ion-item>
+            <ion-item ng-repeat="person in pending | people: searchQuery" class="item item-avatar">
+                <img ng-src="{{person.avatar }}" />
+                <h2 class="item-text-center item-text-wrap">{{person.name}}</h2>
+            </ion-item>
+        </ion-list>
+        <ion-list ng-if="people.length !== 0">
             <ion-item class="item-divider">
                 All
             </ion-item>

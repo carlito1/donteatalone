@@ -11,17 +11,22 @@
             var peopleFilter = function( peoples ) {
                 var lists = [ 'pending', 'waiting', 'friends' ];
                 var promises = [];
-                lists.forEach( function ( list ) {
-                    promises.push( dataService.getOnce( list )
-                    .then( function( people ) {
-                        peoples = peoples.filter( function ( item ) {
-                            return people.indexOf( item.id ) === -1;
-                        } );
-                    } ) );
-                } );
-
-                $q.all( promises )
+                var filter = function( people ) {
+                    peoples = peoples.filter( function ( item ) {
+                        return people.indexOf( item.id ) === -1;
+                    } );
+                    return true;
+                };
+                dataService.getOnce( 'pending' )
+                .then( filter )
                 .then( function() {
+                    return dataService.getOnce( 'waiting' )
+                    .then( filter );
+                })
+                .then (function () {
+                    return dataService.getOnce( 'friends' ).then( filter );
+                } )
+                .then( function () {
                     fnCallback( peoples );
                 } );
             }
