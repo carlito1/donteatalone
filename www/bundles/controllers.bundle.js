@@ -4,11 +4,11 @@ angular.module('sentdevs.controllers.addOffer', [])
     $scope.offer.eaters = [];
     
     $scope.createOffer = function() {
-        console.log($scope.offer);
-        offersService.createOffer($scope.offer).then(function(bStatus) {
-            console.log('Totrata', bStatus);
+        $scope.offer.time = $scope.offer.setTime.getTime();
+        offersService.createOffer($scope.offer)
+        .then(function() {
             $state.go('loged.tab.trending');  
-        });
+        } );
     };
 }]);
 /// <reference path="trendingController.js" />
@@ -102,6 +102,7 @@ angular.module('sentdevs.controllers.loginController', [])
         }, function(error){
             //error hapened
             //TODO : handle error
+            console.log( error );
         });
     };
 }]);
@@ -147,11 +148,52 @@ angular.module('sentdevs.controllers.offersCounterController', [])
 angular.module('sentdevs.controllers.peopleController', [])
 .controller('PeopleController', ['$scope', 'peopleService', function ($scope, peopleService) {
     //Initialization in case we don't have data;
+    $scope.loadingFriends = true;
+    $scope.loadingPending = true;
+    $scope.loadingPeople = true;
+    $scope.friends = [];
     $scope.people = [];
-    $scope.people = peopleService.getAll();
-    console.log('test');
-    
+    $scope.pending = [];
 
+    peopleService.getFriends( function( people ) {
+        $scope.friends = people;
+        $scope.loadingFriends = false;
+    } );
+    peopleService.getPending( function( pending ) {
+        console.log( 'pending', pending );
+        $scope.pending = pending;
+        $scope.loadingPending = false;
+    } );
+    peopleService.getPeople( function ( people ){
+        $scope.people = people;
+        $scope.loadingPeople = false;
+    } );
+    $scope.acceptFriendRequest = function( id ) {
+        peopleService.acceptFriendRequest( id )
+        .then( function () {
+            
+        }, function( error ) {
+            console.log( error );
+        } );
+    };
+
+    $scope.declineFriendRequest = function( id ) {
+        peopleService.declineFriendRequest( id )
+        .then( function () {
+            
+        }, function( error ) {
+            console.log( error );
+        } );
+    };
+
+    $scope.addFriend = function( id ) {
+        peopleService.addFriend( id )
+        .then( function (  ) {
+            
+        }, function ( error ) {
+            console.log( error );
+        } );
+    }
 }]);
 angular.module('sentdevs.controllers.trendingController', [])
 .controller('TrendingController',
@@ -163,24 +205,10 @@ angular.module('sentdevs.controllers.trendingController', [])
     getOffers();
     
     function getOffers() {
-        $ionicLoading.show( {
-            template: '<ion-spinner></ion-spinner>'
-        } );
-        return offersService.getAll()
-        .then(function (offers) {
-            $scope.offers = offers;
-        }, function () {
-            //Error happended. Notify user
-        })
-        .finally( function() {
-            $ionicLoading.hide();
-        } );
+        $scope.offers = offersService.getAll();
     }
     $scope.placeOffer = function( offer ) {
-        offersService.signForOffer( offer )
-        .then( function(){ 
-            return getOffers();
-        });
+        offersService.signForOffer( offer );
     };
 }]);
 angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',

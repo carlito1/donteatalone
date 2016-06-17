@@ -4,10 +4,10 @@ angular.module('sentdevs.controllers.addOffer', [])
     $scope.offer.eaters = [];
     
     $scope.createOffer = function() {
-        console.log($scope.offer);
-        offersService.createOffer($scope.offer).then(function(bStatus) {
-            console.log('Totrata', bStatus);
+        $scope.offer.time = $scope.offer.setTime.getTime();
+        offersService.createOffer($scope.offer)
+        .then(function() {
             $state.go('loged.tab.trending');  
-        });
+        } );
     };
 }]);

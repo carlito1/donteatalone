@@ -9,8 +9,17 @@
     <link href="http://code.ionicframework.com/1.0.0-rc.5/css/ionic.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <link href="css/animate.css" rel="stylesheet" />
-    <script type="text/javascript">
-        var debug = true;
+    
+    <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+    <script>
+        // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyDGWroA88xRPNYwaBWhNsicUZseEH_6Vcw",
+        authDomain: "project-3255501275871802389.firebaseapp.com",
+        databaseURL: "https://project-3255501275871802389.firebaseio.com",
+        storageBucket: "",
+        };
+    firebase.initializeApp(config);
     </script>
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
     <link href="css/ionic.app.css" rel="stylesheet">
