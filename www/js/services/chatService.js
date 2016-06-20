@@ -17,22 +17,20 @@
     }
     return {
         getChats: function getChats( fnCallback ) {
-  
+            var self = this;
             var fb = firebase.database();
             principal.getIdentify()
             .then( function ( identity ) {
                 fb.ref( 'members/' ).orderByChild( identity.id )
                 .on( 'child_added', function( snapshot ){
-                    chats = [];
-                    fb.ref( 'chats/' + snapshot.key ).on( 'value', function( chatSnapshot ){
+                    fb.ref( 'chats/' + snapshot.key ).once( 'value', function( chatSnapshot ){
                         var chatModel = {
                             id: chatSnapshot.key,
                             header: chatSnapshot.child('header').val()
                         };
                         getSender( chatSnapshot ).then( function( person ){
                             chatModel.sender = person;
-                            chats.push( chatModel );
-                            fnCallback( chats );
+                            fnCallback( chatModel );
                         } );
 
                     } );
@@ -40,21 +38,29 @@
             } )
         },
 
+        createMessageModel: function( messageSnapshot ) {
+            var messageModel = {
+                id: messageSnapshot.key,
+                message: messageSnapshot.child( 'message' ).val(),
+                timestamp: messageSnapshot.child( 'timestamp' ).val()
+            };
+            return getSender( messageSnapshot ).then( function( person ){
+                messageModel.sender = person;
+                return messageModel
+            } );
+        },
+
         getMessages: function( id, fnCallback ) {
             messages = [];
+            var self = this;
             var fb = firebase.database();
             fb.ref( 'messages/' + id )
-            .on( 'child_added', function ( messageSnapshot ) {
-                console.log( 'Kličem pridobivanje spoorčila');
-                var messageModel = {
-                    message: messageSnapshot.child( 'message' ).val()
-                };
-                getSender( messageSnapshot )
-                .then( function( person ){
-                    messageModel.sender = person;
-                    messages.push( messageModel );
-                    fnCallback( messages );
-                } );
+            .orderByChild( 'timestamp' )
+            .on( 'child_added', function ( messageSnapshots ) {
+                self.createMessageModel( messageSnapshots )
+                .then( function ( chatModel ) {
+                    fnCallback( chatModel );
+                } )
             } );
         },
 

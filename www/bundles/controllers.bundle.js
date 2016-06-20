@@ -1,3 +1,13 @@
+angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
+    'sentdevs.controllers.trendingController',
+    'sentdevs.controllers.peopleController',
+    'sentdevs.controllers.navigationBarController',
+    'sentdevs.controllers.loginController',
+    'sentdevs.controllers.chatDetailController',
+    'sentdevs.controllers.offersCounterController',
+    'sentdevs.controllers.addOffer',
+    'sentdevs.controllers.offersController'
+]);
 angular.module('sentdevs.controllers.addOffer', [])
 .controller('AddOfferController', ['$scope', '$state', 'offersService',  function($scope, $state, offersService){
     $scope.offer = {};
@@ -15,7 +25,7 @@ angular.module('sentdevs.controllers.addOffer', [])
 angular.module('sentdevs.controllers.chatDetailController', [])
 .controller('ChatDetailController', ['$scope', '$stateParams', 'principal', 'chatService', '$ionicScrollDelegate',
  function ($scope, $stateParams, principal, chatService, $ionicScrollDelegate) {
-    $scope.chatId = Number( $stateParams.chatId );
+    $scope.chatId = $stateParams.chatId;
 
     init();
     getMessages();
@@ -37,25 +47,42 @@ angular.module('sentdevs.controllers.chatDetailController', [])
         .then( function( identity ){
             var message = {
                 sender: identity,
-                message: $scope.message
+                message: $scope.message,
+                timestamp: Date.now()
             };
             return chatService.sendMessage( $scope.chatId, message );
         } )
         .then( function() {
-            $scope.loading = false;
+            $scope.sending = false;
             $scope.message = '';
         } );
     };
+
+    function arrayContains(arr, val, equals) {
+        var i = arr.length;
+        while (i--) {
+            if ( equals(arr[i], val) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function equals( a, b ) {
+        return a.id === b.id;
+    }
     function getMessages() {
         return chatService.getMessages( $scope.chatId, function( chat ) {
-            $scope.chat = chat;
-            $scope.loading = false;
+            if( !arrayContains( $scope.messages, chat, equals ) ) {
+                $scope.messages.push( chat );
+            }
+            $scope.$digest();
             $ionicScrollDelegate.$getByHandle( 'chatList' ).scrollBottom( true );
         } );
     }
     
     function init() {
-        $scope.chat = [];
+        $scope.messages = [];
         $scope.sending = false;
         $scope.message = '';
         $scope.loading = true;
@@ -73,12 +100,29 @@ angular.module('sentdevs.controllers.chatsController', [])
         console.log( 'To se proži' );
         init();
     });
+    function arrayContains(arr, val, equals) {
+        var i = arr.length;
+        while (i--) {
+            if ( equals(arr[i], val) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function equals( a, b ) {
+        return a.id === b.id;
+    }
     function init() {
+        $scope.chats = [];
         $ionicLoading.show( {
             template: '<ion-spinner></ion-spinner>'
         } );
-        chatService.getChats( function( aChats ) {
-            $scope.chats = aChats;
+        chatService.getChats( function( chat ) {
+            if( !arrayContains( $scope.chats, chat, equals ) ) {
+                $scope.chats.push( chat );
+            }
+            $scope.$digest();
             return $ionicLoading.hide();
         } );
     }
@@ -156,12 +200,10 @@ angular.module('sentdevs.controllers.offersController', [])
     }]);
 angular.module('sentdevs.controllers.offersCounterController', [])
 .controller('OffersCounterController', ['$scope', 'offersService', function ($scope, offersService) {
-        $scope.counter = 0;
+    $scope.counter = 0;
     
 
-        offersService.getUnresolvedOffersCount().then(function(coutner){
-
-
+    offersService.getUnresolvedOffersCount().then(function(coutner){
         $scope.counter = coutner;
     });
 }]);
@@ -231,13 +273,3 @@ angular.module('sentdevs.controllers.trendingController', [])
         offersService.signForOffer( offer );
     };
 }]);
-angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
-    'sentdevs.controllers.trendingController',
-    'sentdevs.controllers.peopleController',
-    'sentdevs.controllers.navigationBarController',
-    'sentdevs.controllers.loginController',
-    'sentdevs.controllers.chatDetailController',
-    'sentdevs.controllers.offersCounterController',
-    'sentdevs.controllers.addOffer',
-    'sentdevs.controllers.offersController'
-]);

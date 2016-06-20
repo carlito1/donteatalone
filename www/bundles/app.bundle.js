@@ -136,6 +136,16 @@ angular.module('sentdevs', ['ionic', 'sentdevs.controllers', 'sentdevs.services'
 
 }]);
 
+angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
+    'sentdevs.controllers.trendingController',
+    'sentdevs.controllers.peopleController',
+    'sentdevs.controllers.navigationBarController',
+    'sentdevs.controllers.loginController',
+    'sentdevs.controllers.chatDetailController',
+    'sentdevs.controllers.offersCounterController',
+    'sentdevs.controllers.addOffer',
+    'sentdevs.controllers.offersController'
+]);
 angular.module('sentdevs.controllers.addOffer', [])
 .controller('AddOfferController', ['$scope', '$state', 'offersService',  function($scope, $state, offersService){
     $scope.offer = {};
@@ -153,7 +163,7 @@ angular.module('sentdevs.controllers.addOffer', [])
 angular.module('sentdevs.controllers.chatDetailController', [])
 .controller('ChatDetailController', ['$scope', '$stateParams', 'principal', 'chatService', '$ionicScrollDelegate',
  function ($scope, $stateParams, principal, chatService, $ionicScrollDelegate) {
-    $scope.chatId = Number( $stateParams.chatId );
+    $scope.chatId = $stateParams.chatId;
 
     init();
     getMessages();
@@ -175,25 +185,42 @@ angular.module('sentdevs.controllers.chatDetailController', [])
         .then( function( identity ){
             var message = {
                 sender: identity,
-                message: $scope.message
+                message: $scope.message,
+                timestamp: Date.now()
             };
             return chatService.sendMessage( $scope.chatId, message );
         } )
         .then( function() {
-            $scope.loading = false;
+            $scope.sending = false;
             $scope.message = '';
         } );
     };
+
+    function arrayContains(arr, val, equals) {
+        var i = arr.length;
+        while (i--) {
+            if ( equals(arr[i], val) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function equals( a, b ) {
+        return a.id === b.id;
+    }
     function getMessages() {
         return chatService.getMessages( $scope.chatId, function( chat ) {
-            $scope.chat = chat;
-            $scope.loading = false;
+            if( !arrayContains( $scope.messages, chat, equals ) ) {
+                $scope.messages.push( chat );
+            }
+            $scope.$digest();
             $ionicScrollDelegate.$getByHandle( 'chatList' ).scrollBottom( true );
         } );
     }
     
     function init() {
-        $scope.chat = [];
+        $scope.messages = [];
         $scope.sending = false;
         $scope.message = '';
         $scope.loading = true;
@@ -211,12 +238,29 @@ angular.module('sentdevs.controllers.chatsController', [])
         console.log( 'To se proži' );
         init();
     });
+    function arrayContains(arr, val, equals) {
+        var i = arr.length;
+        while (i--) {
+            if ( equals(arr[i], val) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function equals( a, b ) {
+        return a.id === b.id;
+    }
     function init() {
+        $scope.chats = [];
         $ionicLoading.show( {
             template: '<ion-spinner></ion-spinner>'
         } );
-        chatService.getChats( function( aChats ) {
-            $scope.chats = aChats;
+        chatService.getChats( function( chat ) {
+            if( !arrayContains( $scope.chats, chat, equals ) ) {
+                $scope.chats.push( chat );
+            }
+            $scope.$digest();
             return $ionicLoading.hide();
         } );
     }
@@ -294,12 +338,10 @@ angular.module('sentdevs.controllers.offersController', [])
     }]);
 angular.module('sentdevs.controllers.offersCounterController', [])
 .controller('OffersCounterController', ['$scope', 'offersService', function ($scope, offersService) {
-        $scope.counter = 0;
+    $scope.counter = 0;
     
 
-        offersService.getUnresolvedOffersCount().then(function(coutner){
-
-
+    offersService.getUnresolvedOffersCount().then(function(coutner){
         $scope.counter = coutner;
     });
 }]);
@@ -369,16 +411,7 @@ angular.module('sentdevs.controllers.trendingController', [])
         offersService.signForOffer( offer );
     };
 }]);
-angular.module('sentdevs.controllers', ['sentdevs.controllers.chatsController',
-    'sentdevs.controllers.trendingController',
-    'sentdevs.controllers.peopleController',
-    'sentdevs.controllers.navigationBarController',
-    'sentdevs.controllers.loginController',
-    'sentdevs.controllers.chatDetailController',
-    'sentdevs.controllers.offersCounterController',
-    'sentdevs.controllers.addOffer',
-    'sentdevs.controllers.offersController'
-]);
+angular.module('sentdevs.directives', ['sentdevs.directives.offerDirective']);
 angular.module('sentdevs.directives.offerDirective', [])
 .directive('sdOffer', [function () {
     return {
@@ -412,7 +445,7 @@ angular.module('sentdevs.directives.offerDirective', [])
         }]
     };  
 }]); 
-angular.module('sentdevs.directives', ['sentdevs.directives.offerDirective']);
+angular.module('sentdevs.filters', ['sentdevs.filters.peopleFilter']);
 angular.module('sentdevs.filters.peopleFilter', [])
 .filter('people', function () {
     return function (originalArray, query) {
@@ -432,7 +465,13 @@ angular.module('sentdevs.filters.peopleFilter', [])
     };
 });
 
-angular.module('sentdevs.filters', ['sentdevs.filters.peopleFilter']);
+angular.module('sentdevs.services', ['sentdevs.services.dataService',
+    'sentdevs.services.offersService',
+    'sentdevs.services.peopleService',
+    'sentdevs.services.userService',
+    'sentdevs.services.principalService',
+    'sentdevs.services.chatService'
+]);
 angular.module('sentdevs.services.chatService', [])
 .factory('chatService', ['$q', 'principal', function ($q, principal) {
     var chats = [];
@@ -452,22 +491,20 @@ angular.module('sentdevs.services.chatService', [])
     }
     return {
         getChats: function getChats( fnCallback ) {
-  
+            var self = this;
             var fb = firebase.database();
             principal.getIdentify()
             .then( function ( identity ) {
                 fb.ref( 'members/' ).orderByChild( identity.id )
                 .on( 'child_added', function( snapshot ){
-                    chats = [];
-                    fb.ref( 'chats/' + snapshot.key ).on( 'value', function( chatSnapshot ){
+                    fb.ref( 'chats/' + snapshot.key ).once( 'value', function( chatSnapshot ){
                         var chatModel = {
                             id: chatSnapshot.key,
                             header: chatSnapshot.child('header').val()
                         };
                         getSender( chatSnapshot ).then( function( person ){
                             chatModel.sender = person;
-                            chats.push( chatModel );
-                            fnCallback( chats );
+                            fnCallback( chatModel );
                         } );
 
                     } );
@@ -475,21 +512,29 @@ angular.module('sentdevs.services.chatService', [])
             } )
         },
 
+        createMessageModel: function( messageSnapshot ) {
+            var messageModel = {
+                id: messageSnapshot.key,
+                message: messageSnapshot.child( 'message' ).val(),
+                timestamp: messageSnapshot.child( 'timestamp' ).val()
+            };
+            return getSender( messageSnapshot ).then( function( person ){
+                messageModel.sender = person;
+                return messageModel
+            } );
+        },
+
         getMessages: function( id, fnCallback ) {
             messages = [];
+            var self = this;
             var fb = firebase.database();
             fb.ref( 'messages/' + id )
-            .on( 'child_added', function ( messageSnapshot ) {
-                console.log( 'Kličem pridobivanje spoorčila');
-                var messageModel = {
-                    message: messageSnapshot.child( 'message' ).val()
-                };
-                getSender( messageSnapshot )
-                .then( function( person ){
-                    messageModel.sender = person;
-                    messages.push( messageModel );
-                    fnCallback( messages );
-                } );
+            .orderByChild( 'timestamp' )
+            .on( 'child_added', function ( messageSnapshots ) {
+                self.createMessageModel( messageSnapshots )
+                .then( function ( chatModel ) {
+                    fnCallback( chatModel );
+                } )
             } );
         },
 
@@ -1126,10 +1171,3 @@ angular.module('sentdevs.services.userService', [])
         }
     };
 }]);
-angular.module('sentdevs.services', ['sentdevs.services.dataService',
-    'sentdevs.services.offersService',
-    'sentdevs.services.peopleService',
-    'sentdevs.services.userService',
-    'sentdevs.services.principalService',
-    'sentdevs.services.chatService'
-]);

@@ -8,7 +8,7 @@
     <ion-content delegate-handle="chatList">
         <ion-list>
             <ion-item class="item-remove-animate item-avatar item-icon-right"
-                      ng-repeat="message in chat"
+                      ng-repeat="message in messages | orderBy: 'timestamp'"
                       type="item-text-wrap">
                 <img ng-src="{{message.sender.avatar}}" />
                 <h3>{{message.sender.name}} {{message.sender.surname}}</h3>

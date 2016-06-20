@@ -9,12 +9,29 @@ angular.module('sentdevs.controllers.chatsController', [])
         console.log( 'To se proži' );
         init();
     });
+    function arrayContains(arr, val, equals) {
+        var i = arr.length;
+        while (i--) {
+            if ( equals(arr[i], val) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function equals( a, b ) {
+        return a.id === b.id;
+    }
     function init() {
+        $scope.chats = [];
         $ionicLoading.show( {
             template: '<ion-spinner></ion-spinner>'
         } );
-        chatService.getChats( function( aChats ) {
-            $scope.chats = aChats;
+        chatService.getChats( function( chat ) {
+            if( !arrayContains( $scope.chats, chat, equals ) ) {
+                $scope.chats.push( chat );
+            }
+            $scope.$digest();
             return $ionicLoading.hide();
         } );
     }
